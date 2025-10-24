@@ -167,120 +167,136 @@ document.addEventListener("DOMContentLoaded", () => {
   sections.forEach((section) => sectionObserver.observe(section));
 
   // ===== Wish System =====
-// ===== Wish System =====
-const wishForm     = document.getElementById("wishForm");
-const wishesList   = document.getElementById("wishesList");
-const openWishBtn  = document.getElementById("openModalBtn");
-const formModal    = document.getElementById("wishModalForm");
+  const wishForm     = document.getElementById("wishForm");
+  const wishesList   = document.getElementById("wishesList");
+  const openWishBtn  = document.getElementById("openModalBtn");
+  const formModal    = document.getElementById("wishModalForm");
+  const detailModal  = document.getElementById("wishDetailModal");
 
-const closeFormModal   = formModal?.querySelector(".close-modal");
+  const closeFormModal   = formModal?.querySelector(".close-modal");
+  const closeDetailModal = detailModal?.querySelector(".close-modal");
 
-openWishBtn?.addEventListener("click", () => formModal.style.display = "block");
-closeFormModal?.addEventListener("click", () => formModal.style.display = "none");
-window.addEventListener("click", (e) => {
-  if (e.target === formModal) formModal.style.display = "none";
-});
+  openWishBtn?.addEventListener("click", () => formModal.style.display = "block");
+  closeFormModal?.addEventListener("click", () => formModal.style.display = "none");
+  closeDetailModal?.addEventListener("click", () => detailModal.style.display = "none");
+  window.addEventListener("click", (e) => {
+    if (e.target === formModal) formModal.style.display = "none";
+    if (e.target === detailModal) detailModal.style.display = "none";
+  });
 
-// ===== Load Wishes =====
-async function loadWishes() {
-  if (!wishesList) return;
-  wishesList.innerHTML = "<p>Loading wishes…</p>";
-  try {
-    const res = await fetch("https://wedding-ncdk.vercel.app/api/wishes");
-    if (!res.ok) throw new Error(`Server error: ${res.status}`);
-    const wishes = await res.json();
+  // ===== Floating Heart Animation =====
+  function createFloatingHeart(button) {
+    const heart = document.createElement("span");
+    heart.className = "floating-heart";
+    heart.textContent = "❤️";
+    const rect = button.getBoundingClientRect();
+    heart.style.left = `${rect.left + rect.width/2}px`;
+    heart.style.top  = `${rect.top - 10}px`;
+    document.body.appendChild(heart);
+    setTimeout(() => heart.remove(), 1000);
+  }
 
-    if (!Array.isArray(wishes) || wishes.length === 0) {
-      wishesList.innerHTML = "<p>No wishes yet. Be the first to send one!</p>";
-      return;
-    }
+  // ===== Load Wishes =====
+  async function loadWishes() {
+    if (!wishesList) return;
+    wishesList.innerHTML = "<p>Loading wishes…</p>";
+    try {
+      const res = await fetch("https://nagsuban0.github.io/api/wishes");
+      if (!res.ok) throw new Error(`Server error: ${res.status}`);
+      const wishes = await res.json();
 
-    wishesList.innerHTML = "";
-    wishes.forEach((wish) => {
-      const div = document.createElement("div");
-      div.classList.add("wish-item");
-      div.innerHTML = `
-        ${wish.photo ? `<img src="${wish.photo}" class="wish-photo">` : ""}
-        <div class="wish-content">
-          <h4>${wish.fullName}</h4>
-          <p><strong>Email:</strong> ${wish.email}</p>
-          <p>${wish.message.length > 60 ? wish.message.substring(0, 60) + "..." : wish.message}</p>
-        </div>
-        <div class="wish-footer">
-          <button class="like-btn" data-id="${wish.id}">❤️ <span>${wish.likes || 0}</span></button>
-        </div>
-      `;
-      wishesList.appendChild(div);
-    });
+      if (!Array.isArray(wishes) || wishes.length === 0) {
+        wishesList.innerHTML = "<p>No wishes yet. Be the first to send one!</p>";
+        return;
+      }
 
-    // Add like button event listeners
-    wishesList.querySelectorAll(".like-btn").forEach(btn => {
-      btn.addEventListener("click", async () => {
-        const id = btn.getAttribute("data-id");
-        try {
-          const res = await fetch(`https://wedding-ncdk.vercel.app/api/wishes/${id}/like`, {
-            method: "POST"
-          });
-          if (!res.ok) throw new Error(`Failed to like wish: ${res.status}`);
-          const data = await res.json();
-          btn.querySelector("span").textContent = data.likes;
-          createFloatingHeart(btn); // show floating heart
-        } catch(err) {
-          console.error(err);
-          alert("Failed to like wish. Please try again.");
-        }
+      wishesList.innerHTML = "";
+      wishes.forEach((wish) => {
+        const div = document.createElement("div");
+        div.classList.add("wish-item");
+
+        const photoHTML = wish.photo
+          ? `<img src="${wish.photo}" class="wish-photo" alt="Wish photo">`
+          : "";
+
+        const shortMessage = wish.message.length > 60
+          ? wish.message.substring(0, 60) + "..."
+          : wish.message;
+
+        div.innerHTML = `
+          ${photoHTML}
+          <div class="wish-content">
+            <h4>${wish.fullName}</h4>
+            <p><strong>Email:</strong> ${wish.email}</p>
+            <p>${shortMessage}</p>
+          </div>
+          <div class="wish-footer">
+            <button class="like-btn">❤️ <span>${wish.likes || 0}</span></button>
+          </div>
+        `;
+
+        wishesList.appendChild(div);
+
+        // Like button handler
+        const likeBtn = div.querySelector(".like-btn");
+        likeBtn?.addEventListener("click", async () => {
+          const currentLikes = parseInt(likeBtn.querySelector("span").textContent) || 0;
+          likeBtn.querySelector("span").textContent = currentLikes + 1;
+          createFloatingHeart(likeBtn);
+
+          try {
+            await fetch(`https://wedding-ncdk.vercel.app/api/wishes/${wish._id}/like`, { method: "POST" });
+          } catch (err) {
+            console.error("Failed to update like:", err);
+          }
+        });
       });
-    });
 
-  } catch(err) {
-    console.error(err);
-    wishesList.innerHTML = "<p>Failed to load wishes.</p>";
-  }
-}
-
-// ===== Floating Heart Animation =====
-function createFloatingHeart(button) {
-  const heart = document.createElement("span");
-  heart.className = "floating-heart";
-  heart.textContent = "❤️";
-  const rect = button.getBoundingClientRect();
-  heart.style.left = `${rect.left + rect.width/2}px`;
-  heart.style.top  = `${rect.top - 10}px`;
-  document.body.appendChild(heart);
-  setTimeout(() => heart.remove(), 1000);
-}
-
-// ===== Submit Wish =====
-wishForm?.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const formData = new FormData(wishForm);
-  const data = {
-    fullName: formData.get("fullName"),
-    email: formData.get("email"),
-    message: formData.get("message"),
-    photo: formData.get("photo") || null
-  };
-  try {
-    const res = await fetch("https://wedding-ncdk.vercel.app/api/wishes", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
-    });
-    if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
-      throw new Error(errorData.error || "Failed to submit wish");
+    } catch (err) {
+      console.error(err);
+      wishesList.innerHTML = "<p>Failed to load wishes.</p>";
     }
-    alert("Wish sent successfully! ❤️");
-    wishForm.reset();
-    formModal.style.display = "none";
-    loadWishes(); // refresh wish list
-  } catch(err) {
-    console.error(err);
-    alert(err.message || "Failed to send wish. Please try again.");
   }
-});
 
-// ===== Initial load =====
-loadWishes();
+  loadWishes();
 
+  // ===== Submit Wish =====
+  wishForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(wishForm);
+    const data = {
+      fullName: formData.get("fullName"),
+      email: formData.get("email"),
+      message: formData.get("message"),
+      photo: ""
+    };
+
+    const file = formData.get("photo");
+    if (file && file.size > 0) {
+      data.photo = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    try {
+      const res = await fetch("https://wedding-ncdk.vercel.app/api/wishes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+
+      if (!res.ok) throw new Error("Failed to submit wish");
+
+      alert("Your wish has been submitted! 🎉");
+      wishForm.reset();
+      formModal.style.display = "none";
+      loadWishes();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to submit your wish. Please try again.");
+    }
+  });
 });
