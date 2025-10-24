@@ -29,7 +29,7 @@ let wishes = [];
 // Save wishes to file safely
 let saving = false;
 async function saveWishes() {
-  if (saving) return;
+  if (saving) return; // skip if already saving
   saving = true;
   try {
     await fs.writeFile(WISHES_FILE, JSON.stringify(wishes, null, 2));
@@ -39,7 +39,7 @@ async function saveWishes() {
   saving = false;
 }
 
-// ===== Periodic save for new wishes every 5 seconds =====
+// ===== Periodic save every 5 seconds =====
 setInterval(saveWishes, 5000);
 
 // Save on server shutdown
@@ -69,19 +69,17 @@ app.post('/api/wishes', (req, res) => {
   const id = Date.now();
   const newWish = { id, fullName, email, message, photo, likes: 0 };
   wishes.push(newWish);
-  // New wishes will be saved during the next interval
   res.json(newWish);
 });
 
-// 🟢 Like a wish (saved immediately)
-app.post('/api/wishes/:id/like', async (req, res) => {
+// 🟢 Like a wish
+app.post('/api/wishes/:id/like', (req, res) => {
   const wish = wishes.find(w => w.id == req.params.id);
   if (!wish) {
     return res.status(404).json({ error: 'Wish not found.' });
   }
 
   wish.likes += 1;
-  await saveWishes(); // persist likes immediately
   res.json({ likes: wish.likes });
 });
 
