@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded"), () => {}
   // ===== Dark mode toggle =====
   const darkModeToggle = document.getElementById("darkModeToggle");
   const body = document.body;
@@ -194,7 +194,7 @@ async function loadWishes() {
 
   try {
     // ⚠️ CHANGE THIS URL to your actual backend endpoint on Vercel
-    const res = await fetch("https://your-vercel-app.vercel.app/api/wishes");
+    const res = await fetch("https://wedding-ncdk.vercel.app/api/wishes");
     const wishes = await res.json();
 
     if (!Array.isArray(wishes) || wishes.length === 0) {
@@ -241,7 +241,7 @@ async function loadWishes() {
         }
 
         try {
-          await fetch(`https://your-vercel-app.vercel.app/api/wishes/${wish.id}/like`, {
+          await fetch(`https://wedding-ncdk.vercel.app/api/wishes${wish.id}/like`, {
             method: "POST",
           });
           localStorage.setItem(`liked_${wish.id}`, now.toString());
@@ -271,7 +271,7 @@ wishForm?.addEventListener("submit", (e) => {
 
   async function saveWish(photoData) {
     try {
-      await fetch("https://your-vercel-app.vercel.app/api/wishes", {
+      await fetch("https://wedding-ncdk.vercel.app/api/wishes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ fullName, email, message, photo: photoData }),
