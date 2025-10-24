@@ -198,74 +198,56 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ===== Load Wishes =====
-  async function loadWishes() {
-    if (!wishesList) return;
-    wishesList.innerHTML = "<p>Loading wishes…</p>";
-    try {
-      const res    = await fetch("https://wedding-ncdk.vercel.app/api/wishes");
-      const wishes = await res.json();
-      if (!Array.isArray(wishes) || wishes.length === 0) {
-        wishesList.innerHTML = "<p>No wishes yet. Be the first to send one!</p>";
-        return;
-      }
-      wishesList.innerHTML = "";
-      wishes.forEach((wish) => {
-        const div = document.createElement("div");
-        div.classList.add("wish-item");
-        div.innerHTML = `
-          ${wish.photo ? `<img src="${wish.photo}" class="wish-photo">` : ""}
-          <div class="wish-content">
-            <h4>${wish.fullName}</h4>
-            <p><strong>Email:</strong> ${wish.email}</p>
-            <p>${wish.message.length > 60 ? wish.message.substring(0, 60) + "..." : wish.message}</p>
-          </div>
-          <div class="wish-footer">
-            <button class="like-btn">❤️ <span>${wish.likes || 0}</span></button>
-          </div>
-        `;
+async function loadWishes() {
+  if (!wishesList) return;
+  wishesList.innerHTML = "<p>Loading wishes…</p>";
+  try {
+    const res = await fetch("https://wedding-ncdk.vercel.app/api/wishes");
 
-        div.addEventListener("click", (e) => {
-          if (e.target.classList.contains("like-btn")) return;
-          modalPhoto.src           = wish.photo || "";
-          modalPhoto.style.display = wish.photo ? "block" : "none";
-          modalName.textContent    = wish.fullName;
-          modalEmail.textContent   = wish.email;
-          modalMessage.textContent = wish.message;
-          detailModal.style.display = "block";
-        });
-
-        const likeBtn = div.querySelector(".like-btn");
-        likeBtn?.addEventListener("click", async (e) => {
-          e.stopPropagation();
-          const lastLiked = localStorage.getItem(`liked_${wish.id}`);
-          const now       = Date.now();
-          if (lastLiked && now - lastLiked < 24*60*60*1000) {
-            alert("You can only like once every 24 hours ❤️");
-            return;
-          }
-
-          // Optimistic UI update
-          const likeCountSpan = likeBtn.querySelector("span");
-          likeCountSpan.textContent = (parseInt(likeCountSpan.textContent) + 1);
-
-          try {
-            await fetch(`https://wedding-ncdk.vercel.app/api/wishes/${wish.id}/like`, { method: "POST" });
-            localStorage.setItem(`liked_${wish.id}`, now.toString());
-            createFloatingHeart(likeBtn);
-          } catch(err) {
-            console.error("Failed to like:", err);
-            likeCountSpan.textContent = (parseInt(likeCountSpan.textContent) - 1);
-            alert("Failed to like. Please try again.");
-          }
-        });
-
-        wishesList.appendChild(div);
-      });
-    } catch(err) {
-      console.error("Failed to load wishes:", err);
+    if (!res.ok) {
+      console.error("Server responded with error:", res.status, await res.text());
       wishesList.innerHTML = "<p>Failed to load wishes.</p>";
+      return;
     }
+
+    let wishes;
+    try {
+      wishes = await res.json();
+    } catch(jsonErr) {
+      console.error("Invalid JSON from server:", await res.text());
+      wishesList.innerHTML = "<p>Failed to load wishes (invalid data).</p>";
+      return;
+    }
+
+    if (!Array.isArray(wishes) || wishes.length === 0) {
+      wishesList.innerHTML = "<p>No wishes yet. Be the first to send one!</p>";
+      return;
+    }
+
+    wishesList.innerHTML = "";
+    wishes.forEach((wish) => {
+      const div = document.createElement("div");
+      div.classList.add("wish-item");
+      div.innerHTML = `
+        ${wish.photo ? `<img src="${wish.photo}" class="wish-photo">` : ""}
+        <div class="wish-content">
+          <h4>${wish.fullName}</h4>
+          <p><strong>Email:</strong> ${wish.email}</p>
+          <p>${wish.message.length > 60 ? wish.message.substring(0, 60) + "..." : wish.message}</p>
+        </div>
+        <div class="wish-footer">
+          <button class="like-btn">❤️ <span>${wish.likes || 0}</span></button>
+        </div>
+      `;
+      wishesList.appendChild(div);
+    });
+
+  } catch(err) {
+    console.error("Failed to load wishes:", err);
+    wishesList.innerHTML = "<p>Failed to load wishes.</p>";
   }
+}
+
 
   // ===== Floating Heart Animation =====
   function createFloatingHeart(button) {
