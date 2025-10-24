@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MySite</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- Add these fonts for Jack & Rose look -->
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- ===== Animated Background ===== -->
+  <div class="animated-background">
+    <img src="img/Image-101.jpg" alt="Background Left" class="bg-left">
+    <img src="img/Image-109.jpg" alt="Background Right" class="bg-right">
+  </div>
+
+  <!-- ===== Updated Glassy Sticky Navbar ===== -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <!-- Left Links -->
+      <ul class="nav-links left-links">
+        <li><a href="#home" class="active">Home</a></li>
+        <li><a href="#story">Story</a></li>
+        <li><a href="#gallery">Gallery</a></li>
+      </ul>
+
+      <!-- Center Logo -->
+      <div class="logo">Victor<span>&</span>Analyka</div>
+
+      <!-- Right Links -->
+      <ul class="nav-links right-links">
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+
+      <!-- Dark Mode Toggle -->
+      <button id="darkModeToggle">🌙</button>
+
+      <!-- Hamburger Menu -->
+      <div class="hamburger" aria-expanded="false" aria-label="Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===== Vertical Heart Divider Line ===== -->
+  <div class="vertical-timeline">
+    <div class="diamond"></div>
+    <div class="diamond"></div>
+    <div class="diamond"></div>
+    <div class="diamond"></div>
+  </div>
+
+  <!-- ===== HERO SECTION ===== -->
+  <section id="home" class="hero-section">
+    <div class="slider">
+      <div class="slide active"><img src="img/Image-151.jpg"Slide 1"></div>
+      <div class="slide"><img src="img/Image-155-1.jpg" alt="Slide 2"></div>
+      <div class="slide"><img src="img/Image-17.jpg" alt="Slide 3"></div>
+
+      <div class="dots">
+        <span class="dot active" data-slide="0"></span>
+        <span class="dot" data-slide="1"></span>
+        <span class="dot" data-slide="2"></span>
+      </div>
+    </div>
+
+    <div class="hero-text">
+      <h1>Welcome to MySite</h1>
+      <p>Your story begins here.</p>
+    </div>
+  </section>
+
+  <!-- ===== STORY SECTION ===== -->
+  <section id="story" class="section story-section">
+    <h2>Our Love Story</h2>
+    <p class="story-intro">Every chapter tells a piece of our journey — filled with laughter, adventures, and dreams.</p>
+
+    <div class="story-timeline">
+      <div class="story-item left">
+        <div class="story-content">
+          <h3>How We Met</h3>
+          <p>It all began on a sunny afternoon, where two paths crossed by fate. What started as a friendly conversation turned into endless laughter and connection.</p>
+        </div>
+        <div class="story-img">
+          <img src="story1.jpg" alt="How We Met">
+        </div>
+      </div>
+
+      <div class="story-item right">
+        <div class="story-img">
+          <img src="story2.jpg" alt="First Adventure">
+        </div>
+        <div class="story-content">
+          <h3>First Adventure</h3>
+          <p>From long drives to unexpected detours, every moment together became a story to cherish — proving that the best adventures are shared.</p>
+        </div>
+      </div>
+
+      <div class="story-item left">
+        <div class="story-content">
+          <h3>The Proposal</h3>
+          <p>Under a sky full of stars, a promise was made — to grow, to laugh, and to love each other through every season of life.</p>
+        </div>
+        <div class="story-img">
+          <img src="story3.jpg" alt="The Proposal">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== GALLERY SECTION ===== -->
+  <section id="gallery" class="section gallery-section">
+    <h2>Gallery</h2>
+    <p>Explore our favorite moments captured beautifully.</p>
+
+    <div class="gallery-container">
+      <!-- Collage Layout -->
+      <div class="gallery-collage">
+        <div class="gallery-item tall"><img src="g1.jpg" alt="Gallery 1"></div>
+        <div class="gallery-item wide"><img src="g2.jpg" alt="Gallery 2"></div>
+        <div class="gallery-item"><img src="g3.jpg" alt="Gallery 3"></div>
+        <div class="gallery-item"><img src="g4.jpg" alt="Gallery 4"></div>
+        <div class="gallery-item tall"><img src="g5.jpg" alt="Gallery 5"></div>
+        <div class="gallery-item wide"><img src="g6.jpg" alt="Gallery 6"></div>
+      </div>
+
+      <!-- Slider Layout -->
+      <div class="gallery-slider">
+        <div class="gallery-slide"><img src="g1.jpg" alt=""></div>
+        <div class="gallery-slide"><img src="g2.jpg" alt=""></div>
+        <div class="gallery-slide"><img src="g3.jpg" alt=""></div>
+        <div class="gallery-slide"><img src="g4.jpg" alt=""></div>
+        <div class="gallery-slide"><img src="g5.jpg" alt=""></div>
+        <div class="gallery-slide"><img src="g6.jpg" alt=""></div>
+      </div>
+
+      <!-- Slider Controls -->
+      <div class="gallery-controls">
+        <button class="prev">❮</button>
+        <button class="next">❯</button>
+      </div>
+    </div>
+  </section>
+
+<!-- ===== CONTACT SECTION ===== -->
+<section id="contact" class="section">
+  <h2>Contact</h2>
+  <p>Reach out to us anytime!</p>
+  
+  <!-- Button to open modal -->
+  <button id="openModalBtn" class="contact-btn">Send a Wish</button>
+
+  <!-- Display submitted wishes -->
+  <div id="wishesList" class="wishes-list"></div>
+</section>
+
+<!-- Modal Form -->
+<div id="contactModal" class="modal">
+  <div class="modal-content">
+    <span class="close-modal">&times;</span>
+    <h3>Send Your Wishes</h3>
+    <form id="contactForm">
+      <label for="fullName">Full Name</label>
+      <input type="text" id="fullName" name="fullName" placeholder="Your full name" required>
+
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" placeholder="Your email" required>
+
+      <label for="photo">Upload a Photo (optional)</label>
+      <input type="file" id="photo" name="photo" accept="image/*">
+
+      <label for="wishes">Wishes</label>
+      <textarea id="wishes" name="wishes" rows="4" placeholder="Write your wishes..." required></textarea>
+
+      <button type="submit" class="submit-btn">Send</button>
+    </form>
+  </div>
+</div>
+
+<!-- Display submitted wishes -->
+<div class="wishes-wrapper">
+  <div id="wishesList" class="wishes-list"></div>
+</div>
+
+<!-- Wish Detail Modal -->
+<div id="wishModal" class="modal">
+  <div class="modal-content">
+    <span class="close-modal">&times;</span>
+    <img id="modalPhoto" src="" alt="Photo" class="modal-photo">
+    <h3 id="modalName"></h3>
+    <p id="modalEmail"></p>
+    <p id="modalMessage"></p>
+  </div>
+</div>
+
+
+
+
+  <!-- ===== LIGHTBOX (shared for story + gallery images) ===== -->
+  <div id="lightbox" class="lightbox">
+    <span class="close">&times;</span>
+    <img class="lightbox-img" src="" alt="Full View">
+    <button class="prev">&#10094;</button>
+    <button class="next">&#10095;</button>
+  </div>
+
+
+
+  <!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="footer-container">
+    <!-- Logo Text -->
+    <div class="footer-logo">
+      Victor<span>&</span>Analyka
+    </div>
+
+    <!-- Copyright -->
+    <div class="footer-copy">
+      &copy; 2025 Victor & Analyka. All rights reserved.
+    </div>
+  </div>
+</footer>
+
+  <!-- ✅ Main JS -->
+  <script src="script.js"></script>
+</body>
+</html>
