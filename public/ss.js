@@ -34,11 +34,15 @@ document.addEventListener("DOMContentLoaded", () => {
     let current = "";
     sections.forEach((section) => {
       const sectionTop = section.offsetTop - 70;
-      if (window.pageYOffset >= sectionTop) current = section.getAttribute("id");
+      if (window.pageYOffset >= sectionTop) {
+        current = section.getAttribute("id");
+      }
     });
     document.querySelectorAll(".nav-links a").forEach((a) => {
       a.classList.remove("active");
-      if (a.getAttribute("href") === `#${current}`) a.classList.add("active");
+      if (a.getAttribute("href") === `#${current}`) {
+        a.classList.add("active");
+      }
     });
   });
 
@@ -90,7 +94,9 @@ document.addEventListener("DOMContentLoaded", () => {
     lightbox.classList.add("show");
   }
 
-  galleryImages.forEach((img, i) => img.addEventListener("click", () => showLightbox(i)));
+  galleryImages.forEach((img, i) => {
+    img.addEventListener("click", () => showLightbox(i));
+  });
   closeBtn?.addEventListener("click", () => lightbox.classList.remove("show"));
   nextLightbox?.addEventListener("click", (e) => {
     e.stopPropagation();
@@ -146,7 +152,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const storyItems = document.querySelectorAll(".story-item");
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
-      if (entry.isIntersecting) entry.target.classList.add("show");
+      if (entry.isIntersecting) {
+        entry.target.classList.add("show");
+      }
     });
   }, { threshold: 0.3 });
   storyItems.forEach((item) => observer.observe(item));
@@ -173,6 +181,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const formModal    = document.getElementById("wishModalForm");
   const detailModal  = document.getElementById("wishDetailModal");
 
+  const modalPhoto   = document.getElementById("modalPhoto");
+  const modalName    = document.getElementById("modalName");
+  const modalEmail   = document.getElementById("modalEmail");
+  const modalMessage = document.getElementById("modalMessage");
+
   const closeFormModal   = formModal?.querySelector(".close-modal");
   const closeDetailModal = detailModal?.querySelector(".close-modal");
 
@@ -180,9 +193,61 @@ document.addEventListener("DOMContentLoaded", () => {
   closeFormModal?.addEventListener("click", () => formModal.style.display = "none");
   closeDetailModal?.addEventListener("click", () => detailModal.style.display = "none");
   window.addEventListener("click", (e) => {
-    if (e.target === formModal) formModal.style.display = "none";
+    if (e.target === formModal)   formModal.style.display   = "none";
     if (e.target === detailModal) detailModal.style.display = "none";
   });
+
+  // ===== Load Wishes =====
+async function loadWishes() {
+  if (!wishesList) return;
+  wishesList.innerHTML = "<p>Loading wishes…</p>";
+  try {
+    const res = await fetch("https://wedding-ncdk.vercel.app/api/wishes");
+
+    if (!res.ok) {
+      console.error("Server responded with error:", res.status, await res.text());
+      wishesList.innerHTML = "<p>Failed to load wishes.</p>";
+      return;
+    }
+
+    let wishes;
+    try {
+      wishes = await res.json();
+    } catch(jsonErr) {
+      console.error("Invalid JSON from server:", await res.text());
+      wishesList.innerHTML = "<p>Failed to load wishes (invalid data).</p>";
+      return;
+    }
+
+    if (!Array.isArray(wishes) || wishes.length === 0) {
+      wishesList.innerHTML = "<p>No wishes yet. Be the first to send one!</p>";
+      return;
+    }
+
+    wishesList.innerHTML = "";
+    wishes.forEach((wish) => {
+      const div = document.createElement("div");
+      div.classList.add("wish-item");
+      div.innerHTML = `
+        ${wish.photo ? `<img src="${wish.photo}" class="wish-photo">` : ""}
+        <div class="wish-content">
+          <h4>${wish.fullName}</h4>
+          <p><strong>Email:</strong> ${wish.email}</p>
+          <p>${wish.message.length > 60 ? wish.message.substring(0, 60) + "..." : wish.message}</p>
+        </div>
+        <div class="wish-footer">
+          <button class="like-btn">❤️ <span>${wish.likes || 0}</span></button>
+        </div>
+      `;
+      wishesList.appendChild(div);
+    });
+
+  } catch(err) {
+    console.error("Failed to load wishes:", err);
+    wishesList.innerHTML = "<p>Failed to load wishes.</p>";
+  }
+}
+
 
   // ===== Floating Heart Animation =====
   function createFloatingHeart(button) {
@@ -196,107 +261,32 @@ document.addEventListener("DOMContentLoaded", () => {
     setTimeout(() => heart.remove(), 1000);
   }
 
-  // ===== Load Wishes =====
-  async function loadWishes() {
-    if (!wishesList) return;
-    wishesList.innerHTML = "<p>Loading wishes…</p>";
-    try {
-      const res = await fetch("https://wedding-ncdk.vercel.app/api/wishes");
-      if (!res.ok) throw new Error(`Server error: ${res.status}`);
-      const wishes = await res.json();
-
-      if (!Array.isArray(wishes) || wishes.length === 0) {
-        wishesList.innerHTML = "<p>No wishes yet. Be the first to send one!</p>";
-        return;
-      }
-
-      wishesList.innerHTML = "";
-      wishes.forEach((wish) => {
-        const div = document.createElement("div");
-        div.classList.add("wish-item");
-
-        const photoHTML = wish.photo
-          ? `<img src="${wish.photo}" class="wish-photo" alt="Wish photo">`
-          : "";
-
-        const shortMessage = wish.message.length > 60
-          ? wish.message.substring(0, 60) + "..."
-          : wish.message;
-
-        div.innerHTML = `
-          ${photoHTML}
-          <div class="wish-content">
-            <h4>${wish.fullName}</h4>
-            <p><strong>Email:</strong> ${wish.email}</p>
-            <p>${shortMessage}</p>
-          </div>
-          <div class="wish-footer">
-            <button class="like-btn">❤️ <span>${wish.likes || 0}</span></button>
-          </div>
-        `;
-
-        wishesList.appendChild(div);
-
-        // Like button handler
-        const likeBtn = div.querySelector(".like-btn");
-        likeBtn?.addEventListener("click", async () => {
-          const currentLikes = parseInt(likeBtn.querySelector("span").textContent) || 0;
-          likeBtn.querySelector("span").textContent = currentLikes + 1;
-          createFloatingHeart(likeBtn);
-
-          try {
-            await fetch(`https://wedding-ncdk.vercel.app/api/wishes/${wish._id}/like`, { method: "POST" });
-          } catch (err) {
-            console.error("Failed to update like:", err);
-          }
-        });
-      });
-
-    } catch (err) {
-      console.error(err);
-      wishesList.innerHTML = "<p>Failed to load wishes.</p>";
-    }
-  }
-
-  loadWishes();
-
   // ===== Submit Wish =====
   wishForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
-
     const formData = new FormData(wishForm);
     const data = {
       fullName: formData.get("fullName"),
       email: formData.get("email"),
       message: formData.get("message"),
-      photo: ""
+      photo: formData.get("photo")
     };
-
-    const file = formData.get("photo");
-    if (file && file.size > 0) {
-      data.photo = await new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.readAsDataURL(file);
-      });
-    }
-
     try {
       const res = await fetch("https://wedding-ncdk.vercel.app/api/wishes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)
       });
-
       if (!res.ok) throw new Error("Failed to submit wish");
-
-      alert("Your wish has been submitted! 🎉");
+      alert("Wish sent successfully! ❤️");
       wishForm.reset();
       formModal.style.display = "none";
-      loadWishes();
-    } catch (err) {
+      loadWishes(); // refresh wish list
+    } catch(err) {
       console.error(err);
-      alert("Failed to submit your wish. Please try again.");
+      alert("Failed to send wish. Please try again.");
     }
   });
+
+  loadWishes();
 });
