@@ -3,17 +3,53 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
+const fs = require('fs').promises;
 
-// Initialize Express app
+// ===== Initialize Express app =====
 const app = express();
 
 // ===== Middleware =====
 app.use(cors());
 app.use(bodyParser.json());
 
-// ===== In-memory data store =====
-// ⚠️ This resets every time the server restarts (not persistent)
+// ===== JSON File Persistence =====
+const WISHES_FILE = path.join(__dirname, 'wishes.json');
+
+// Load wishes from file if it exists
 let wishes = [];
+(async () => {
+  try {
+    const data = await fs.readFile(WISHES_FILE, 'utf-8');
+    wishes = JSON.parse(data);
+  } catch (err) {
+    if (err.code !== 'ENOENT') console.error('Error reading wishes.json:', err);
+  }
+})();
+
+// Save wishes to file safely
+let saving = false;
+async function saveWishes() {
+  if (saving) return;
+  saving = true;
+  try {
+    await fs.writeFile(WISHES_FILE, JSON.stringify(wishes, null, 2));
+  } catch (err) {
+    console.error('Error writing wishes.json:', err);
+  }
+  saving = false;
+}
+
+// ===== Periodic save for new wishes every 5 seconds =====
+setInterval(saveWishes, 5000);
+
+// Save on server shutdown
+process.on('exit', saveWishes);
+process.on('SIGINT', () => {
+  saveWishes().then(() => process.exit());
+});
+process.on('SIGTERM', () => {
+  saveWishes().then(() => process.exit());
+});
 
 // ===== API ROUTES =====
 
@@ -33,17 +69,19 @@ app.post('/api/wishes', (req, res) => {
   const id = Date.now();
   const newWish = { id, fullName, email, message, photo, likes: 0 };
   wishes.push(newWish);
+  // New wishes will be saved during the next interval
   res.json(newWish);
 });
 
-// 🟢 Like a wish
-app.post('/api/wishes/:id/like', (req, res) => {
+// 🟢 Like a wish (saved immediately)
+app.post('/api/wishes/:id/like', async (req, res) => {
   const wish = wishes.find(w => w.id == req.params.id);
   if (!wish) {
     return res.status(404).json({ error: 'Wish not found.' });
   }
 
   wish.likes += 1;
+  await saveWishes(); // persist likes immediately
   res.json({ likes: wish.likes });
 });
 

@@ -222,25 +222,44 @@ document.addEventListener("DOMContentLoaded", () => {
           wishModal.style.display = "block";
         });
 
-        // Like button
-        const likeBtn = div.querySelector(".like-btn");
-        likeBtn?.addEventListener("click", async (e) => {
-          e.stopPropagation();
-          try {
-            await fetch(`/api/wishes/${wish.id}/like`, { method: "POST" }); // ✅ Corrected API URL
-            loadWishes();
-            createFloatingHeart(likeBtn);
-          } catch (err) {
-            console.error("Failed to like wish:", err);
-          }
-        });
+// Check if already liked and update button appearance
+const likedWishes = JSON.parse(localStorage.getItem("likedWishes") || "[]");
+if (likedWishes.includes(wish.id)) {
+  likeBtn.disabled = true;
+  likeBtn.style.opacity = 0.5;
+  likeBtn.title = "You have already liked this wish";
+}
 
-        wishesList.appendChild(div);
-      });
-    } catch (err) {
-      console.error("Failed to load wishes:", err);
-    }
+// Like button
+likeBtn?.addEventListener("click", async (e) => {
+  e.stopPropagation();
+
+  const likedWishes = JSON.parse(localStorage.getItem("likedWishes") || "[]");
+  if (likedWishes.includes(wish.id)) {
+    alert("You can only like each wish once per device!");
+    return;
   }
+
+  try {
+    const res = await fetch(`/api/wishes/${wish.id}/like`, { method: "POST" });
+    const data = await res.json();
+
+    // Update UI
+    likeBtn.querySelector("span").textContent = data.likes;
+
+    // Save to localStorage
+    likedWishes.push(wish.id);
+    localStorage.setItem("likedWishes", JSON.stringify(likedWishes));
+
+    // Disable the button
+    likeBtn.disabled = true;
+    likeBtn.style.opacity = 0.5;
+
+    createFloatingHeart(likeBtn);
+  } catch (err) {
+    console.error("Failed to like wish:", err);
+  }
+});
 
   // ===== Submit New Wish =====
   contactForm?.addEventListener("submit", (e) => {
