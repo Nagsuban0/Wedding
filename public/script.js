@@ -201,7 +201,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!wishesList) return;
     wishesList.innerHTML = "<p>Loading wishes…</p>";
     try {
-      const res = await fetch("https://wedding-ncdk.vercel.app/api/wishes");
+      const res = await fetch("/api/wishes");
       if (!res.ok) throw new Error(`Server error: ${res.status}`);
       const wishes = await res.json();
 
@@ -245,7 +245,7 @@ document.addEventListener("DOMContentLoaded", () => {
           createFloatingHeart(likeBtn);
 
           try {
-            await fetch(`https://wedding-ncdk.vercel.app/api/wishes/${wish._id}/like`, { method: "POST" });
+            await fetch(`/api/wishes/${wish._id}/like`, { method: "POST" });
           } catch (err) {
             console.error("Failed to update like:", err);
           }
@@ -282,7 +282,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     try {
-      const res = await fetch("https://wedding-ncdk.vercel.app/api/wishes", {
+      const res = await fetch("/api/wishes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)
