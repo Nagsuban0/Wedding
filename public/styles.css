@@ -1102,4 +1102,123 @@ footer-copy {
     font-size: 1.7rem;
   }
 }
+/* ===== GROOM & BRIDE SECTION ===== */
+.groombride-section {
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 80px 20px;
+}
+
+.groombride-section h2 {
+  font-family: "Great Vibes", cursive;
+  font-size: 2.5rem;
+  color: var(--navy-blue);
+  margin-bottom: 15px;
+}
+
+.groombride-section p {
+  color: #444;
+  margin-bottom: 40px;
+}
+
+.groombride-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 30px;
+  justify-items: center;
+}
+
+.person-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 20px;
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  width: 100%;
+  max-width: 280px;
+}
+
+.person-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.person-photo {
+  width: 100%;
+  height: 280px;
+  object-fit: cover;
+  border-radius: 15px;
+  margin-bottom: 15px;
+}
+
+.person-card h3 {
+  font-family: "Poppins", sans-serif;
+  color: var(--navy-blue);
+  margin-bottom: 5px;
+}
+
+.person-card p {
+  color: var(--rose-gold);
+  font-weight: 600;
+}
+
+/* ===== VENUE SECTION ===== */
+.venue-section {
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(8px);
+  border-radius: 20px;
+  padding: 80px 20px;
+}
+
+.venue-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 30px;
+  margin-bottom: 40px;
+}
+
+.venue-card {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  flex: 1 1 300px;
+  max-width: 400px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.venue-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.venue-card h3 {
+  color: var(--navy-blue);
+  margin-bottom: 10px;
+  font-family: "Poppins", sans-serif;
+}
+
+.venue-card p {
+  color: #333;
+  line-height: 1.6;
+}
+
+.venue-map iframe {
+  border-radius: 20px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .person-photo {
+    height: 200px;
+  }
+  .venue-card {
+    padding: 1.5rem;
+  }
+}
+
 /* ====== CSS END ====== */

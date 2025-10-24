@@ -23,6 +23,8 @@
         <li><a href="#home" class="active">Home</a></li>
         <li><a href="#story">Story</a></li>
         <li><a href="#gallery">Gallery</a></li>
+        <li><a href="#groombride">Groom & Bride</a></li>
+        <li><a href="#venue">Venue</a></li>
       </ul>
 
       <!-- Center Logo -->
@@ -30,7 +32,7 @@
 
       <!-- Right Links -->
       <ul class="nav-links right-links">
-        <li><a href="#contact">Contact</a></li>
+        <li><a href="#wish">Wish</a></li>
       </ul>
 
       <!-- Dark Mode Toggle -->
@@ -56,7 +58,7 @@
   <!-- ===== HERO SECTION ===== -->
   <section id="home" class="hero-section">
     <div class="slider">
-      <div class="slide active"><img src="img/page1.jpg"Slide 1"></div>
+      <div class="slide active"><img src="img/page1.jpg" alt="Slide 1"></div>
       <div class="slide"><img src="img/page2.jpg" alt="Slide 2"></div>
       <div class="slide"><img src="img/page3.jpg" alt="Slide 3"></div>
 
@@ -111,6 +113,68 @@
     </div>
   </section>
 
+  <!-- ===== GROOM & BRIDE SECTION ===== -->
+<section id="groombride" class="section groombride-section">
+  <h2>The Groom & The Bride</h2>
+  <p>Meet our wonderful wedding party — family and friends who make our day extra special.</p>
+
+  <div class="groombride-grid">
+    <!-- Groom Card -->
+    <div class="person-card">
+      <img src="img/groom.jpg" alt="The Groom" class="person-photo">
+      <h3>Victor</h3>
+      <p>The Groom</p>
+    </div>
+
+    <!-- Bride Card -->
+    <div class="person-card">
+      <img src="img/bride.jpg" alt="The Bride" class="person-photo">
+      <h3>Analyka</h3>
+      <p>The Bride</p>
+    </div>
+
+    <!-- Optional Attendants -->
+    <div class="person-card">
+      <img src="img/bestman.jpg" alt="Best Man" class="person-photo">
+      <h3>John Doe</h3>
+      <p>Best Man</p>
+    </div>
+
+    <div class="person-card">
+      <img src="img/maidofhonor.jpg" alt="Maid of Honor" class="person-photo">
+      <h3>Emily Rose</h3>
+      <p>Maid of Honor</p>
+    </div>
+  </div>
+</section>
+
+
+  <!-- ===== VENUE & DATE SECTION ===== -->
+  <section id="venue" class="section venue-section">
+    <h2>Venue, Date & Location</h2>
+    <p>Celebrate with us as we begin our forever together.</p>
+
+    <div class="venue-container">
+      <div class="venue-details">
+        <h3>Wedding Ceremony</h3>
+        <p><strong>Date:</strong> Saturday, March 15, 2025</p>
+        <p><strong>Time:</strong> 4:00 PM</p>
+        <p><strong>Location:</strong> St. Mary's Church, San Fernando</p>
+      </div>
+
+      <div class="venue-details">
+        <h3>Reception Party</h3>
+        <p><strong>Time:</strong> 6:00 PM onwards</p>
+        <p><strong>Location:</strong> Villa Analyka Garden Resort, Pampanga</p>
+      </div>
+
+      <div class="venue-map">
+        <!-- You can embed a Google Map iframe -->
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18..." width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+      </div>
+    </div>
+  </section>
+
   <!-- ===== GALLERY SECTION ===== -->
   <section id="gallery" class="section gallery-section">
     <h2>Gallery</h2>
@@ -145,61 +209,53 @@
     </div>
   </section>
 
-<!-- ===== CONTACT SECTION ===== -->
-<section id="contact" class="section">
-  <h2>Contact</h2>
-  <p>Reach out to us anytime!</p>
-  
-  <!-- Button to open modal -->
-  <button id="openModalBtn" class="contact-btn">Send a Wish</button>
+  <!-- ===== WISH SECTION ===== -->
+  <section id="wish" class="section">
+    <h2>Wish</h2>
+    <p>Send your heartfelt wishes to us!</p>
+    
+    <!-- Button to open modal -->
+    <button id="openModalBtn" class="wish-btn">Send a Wish</button>
 
-  <!-- Display submitted wishes -->
-  <div id="wishesList" class="wishes-list"></div>
-</section>
+    <!-- Display submitted wishes -->
+    <div id="wishesList" class="wishes-list"></div>
+  </section>
 
-<!-- Modal Form -->
-<div id="contactModal" class="modal">
-  <div class="modal-content">
-    <span class="close-modal">&times;</span>
-    <h3>Send Your Wishes</h3>
-    <form id="contactForm">
-      <label for="fullName">Full Name</label>
-      <input type="text" id="fullName" name="fullName" placeholder="Your full name" required>
+  <!-- Modal Form -->
+  <div id="wishModalForm" class="modal">
+    <div class="modal-content">
+      <span class="close-modal">&times;</span>
+      <h3>Send Your Wishes</h3>
+      <form id="wishForm">
+        <label for="fullName">Full Name</label>
+        <input type="text" id="fullName" name="fullName" placeholder="Your full name" required>
 
-      <label for="email">Email</label>
-      <input type="email" id="email" name="email" placeholder="Your email" required>
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="Your email" required>
 
-      <label for="photo">Upload a Photo (optional)</label>
-      <input type="file" id="photo" name="photo" accept="image/*">
+        <label for="photo">Upload a Photo (optional)</label>
+        <input type="file" id="photo" name="photo" accept="image/*">
 
-      <label for="wishes">Wishes</label>
-      <textarea id="wishes" name="wishes" rows="4" placeholder="Write your wishes..." required></textarea>
+        <label for="wishes">Wishes</label>
+        <textarea id="wishes" name="wishes" rows="4" placeholder="Write your wishes..." required></textarea>
 
-      <button type="submit" class="submit-btn">Send</button>
-    </form>
+        <button type="submit" class="submit-btn">Send</button>
+      </form>
+    </div>
   </div>
-</div>
 
-<!-- Display submitted wishes -->
-<div class="wishes-wrapper">
-  <div id="wishesList" class="wishes-list"></div>
-</div>
-
-<!-- Wish Detail Modal -->
-<div id="wishModal" class="modal">
-  <div class="modal-content">
-    <span class="close-modal">&times;</span>
-    <img id="modalPhoto" src="" alt="Photo" class="modal-photo">
-    <h3 id="modalName"></h3>
-    <p id="modalEmail"></p>
-    <p id="modalMessage"></p>
+  <!-- Wish Detail Modal -->
+  <div id="wishDetailModal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal">&times;</span>
+      <img id="modalPhoto" src="" alt="Photo" class="modal-photo">
+      <h3 id="modalName"></h3>
+      <p id="modalEmail"></p>
+      <p id="modalMessage"></p>
+    </div>
   </div>
-</div>
 
-
-
-
-  <!-- ===== LIGHTBOX (shared for story + gallery images) ===== -->
+  <!-- ===== LIGHTBOX ===== -->
   <div id="lightbox" class="lightbox">
     <span class="close">&times;</span>
     <img class="lightbox-img" src="" alt="Full View">
@@ -207,22 +263,17 @@
     <button class="next">&#10095;</button>
   </div>
 
-
-
   <!-- ===== FOOTER ===== -->
-<footer class="footer">
-  <div class="footer-container">
-    <!-- Logo Text -->
-    <div class="footer-logo">
-      Victor<span>&</span>Analyka
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-logo">
+        Victor<span>&</span>Analyka
+      </div>
+      <div class="footer-copy">
+        &copy; 2025 Victor & Analyka. All rights reserved.
+      </div>
     </div>
-
-    <!-- Copyright -->
-    <div class="footer-copy">
-      &copy; 2025 Victor & Analyka. All rights reserved.
-    </div>
-  </div>
-</footer>
+  </footer>
 
   <!-- ✅ Main JS -->
   <script src="script.js"></script>

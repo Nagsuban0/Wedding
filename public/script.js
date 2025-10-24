@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded"), () => {}
+document.addEventListener("DOMContentLoaded", () => {
   // ===== Dark mode toggle =====
   const darkModeToggle = document.getElementById("darkModeToggle");
   const body = document.body;
@@ -17,7 +17,6 @@ document.addEventListener("DOMContentLoaded"), () => {}
       navLinks.classList.toggle("show");
       hamburger.classList.toggle("open");
     });
-
     navLinks.querySelectorAll("a").forEach((link) => {
       link.addEventListener("click", () => {
         if (navLinks.classList.contains("show")) {
@@ -35,11 +34,15 @@ document.addEventListener("DOMContentLoaded"), () => {}
     let current = "";
     sections.forEach((section) => {
       const sectionTop = section.offsetTop - 70;
-      if (pageYOffset >= sectionTop) current = section.getAttribute("id");
+      if (window.pageYOffset >= sectionTop) {
+        current = section.getAttribute("id");
+      }
     });
     document.querySelectorAll(".nav-links a").forEach((a) => {
       a.classList.remove("active");
-      if (a.getAttribute("href") === `#${current}`) a.classList.add("active");
+      if (a.getAttribute("href") === `#${current}`) {
+        a.classList.add("active");
+      }
     });
   });
 
@@ -91,11 +94,21 @@ document.addEventListener("DOMContentLoaded"), () => {}
     lightbox.classList.add("show");
   }
 
-  galleryImages.forEach((img, i) => img.addEventListener("click", () => showLightbox(i)));
+  galleryImages.forEach((img, i) => {
+    img.addEventListener("click", () => showLightbox(i));
+  });
   closeBtn?.addEventListener("click", () => lightbox.classList.remove("show"));
-  nextLightbox?.addEventListener("click", (e) => { e.stopPropagation(); showLightbox((currentIndex + 1) % galleryImages.length); });
-  prevLightbox?.addEventListener("click", (e) => { e.stopPropagation(); showLightbox((currentIndex - 1 + galleryImages.length) % galleryImages.length); });
-  lightbox?.addEventListener("click", (e) => { if (e.target === lightbox) lightbox.classList.remove("show"); });
+  nextLightbox?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    showLightbox((currentIndex + 1) % galleryImages.length);
+  });
+  prevLightbox?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    showLightbox((currentIndex - 1 + galleryImages.length) % galleryImages.length);
+  });
+  lightbox?.addEventListener("click", (e) => {
+    if (e.target === lightbox) lightbox.classList.remove("show");
+  });
   document.addEventListener("keydown", (e) => {
     if (!lightbox.classList.contains("show")) return;
     if (e.key === "Escape") lightbox.classList.remove("show");
@@ -114,7 +127,7 @@ document.addEventListener("DOMContentLoaded"), () => {}
 
   function showSlide(n) {
     index = (n + slides.length) % slides.length;
-    slides.forEach(slide => slide.style.transform = `translateX(-${index * 100}%)`);
+    slides.forEach((slide) => slide.style.transform = `translateX(-${index * 100}%)`);
   }
 
   function initSlider() {
@@ -138,7 +151,11 @@ document.addEventListener("DOMContentLoaded"), () => {}
   // ===== Story Section Scroll Animation =====
   const storyItems = document.querySelectorAll(".story-item");
   const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => { if (entry.isIntersecting) entry.target.classList.add("show"); });
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("show");
+      }
+    });
   }, { threshold: 0.3 });
   storyItems.forEach((item) => observer.observe(item));
 
@@ -158,162 +175,142 @@ document.addEventListener("DOMContentLoaded"), () => {}
   sections.forEach((section) => sectionObserver.observe(section));
 
   // ===== Wish System =====
-const wishesList = document.getElementById("wishesList");
-const wishForm = document.getElementById("wishForm");
-const openModalBtnWish = document.getElementById("openModalBtn");
+  const wishForm     = document.getElementById("wishForm");
+  const wishesList   = document.getElementById("wishesList");
+  const openWishBtn  = document.getElementById("openModalBtn");
+  const formModal    = document.getElementById("wishModalForm");
+  const detailModal  = document.getElementById("wishDetailModal");
 
-// Correct modal references
-const formModal = document.getElementById("wishModalForm");  // form modal
-const detailModal = document.getElementById("wishModal");    // detail modal
+  const modalPhoto   = document.getElementById("modalPhoto");
+  const modalName    = document.getElementById("modalName");
+  const modalEmail   = document.getElementById("modalEmail");
+  const modalMessage = document.getElementById("modalMessage");
 
-// Detail modal elements
-const modalPhoto = document.getElementById("modalPhoto");
-const modalName = document.getElementById("modalName");
-const modalEmail = document.getElementById("modalEmail");
-const modalMessage = document.getElementById("modalMessage");
+  const closeFormModal   = formModal?.querySelector(".close-modal");
+  const closeDetailModal = detailModal?.querySelector(".close-modal");
 
-// Close buttons
-const closeFormModal = formModal?.querySelector(".close-modal");
-const closeDetailModal = detailModal?.querySelector(".close-modal");
+  openWishBtn?.addEventListener("click", () => formModal.style.display = "block");
+  closeFormModal?.addEventListener("click", () => formModal.style.display = "none");
+  closeDetailModal?.addEventListener("click", () => detailModal.style.display = "none");
+  window.addEventListener("click", (e) => {
+    if (e.target === formModal)   formModal.style.display   = "none";
+    if (e.target === detailModal) detailModal.style.display = "none";
+  });
 
-// ===== Open/Close modals =====
-openModalBtnWish?.addEventListener("click", () => {
-  formModal.style.display = "block";
-});
-closeFormModal?.addEventListener("click", () => formModal.style.display = "none");
-closeDetailModal?.addEventListener("click", () => detailModal.style.display = "none");
-window.addEventListener("click", (e) => {
-  if (e.target === formModal) formModal.style.display = "none";
-  if (e.target === detailModal) detailModal.style.display = "none";
-});
+  async function loadWishes() {
+    if (!wishesList) return;
+    wishesList.innerHTML = "<p>Loading wishes…</p>";
+    try {
+      const res    = await fetch("https://wedding-ncdk.vercel.app/api/wishes");
+      const wishes = await res.json();
+      if (!Array.isArray(wishes) || wishes.length === 0) {
+        wishesList.innerHTML = "<p>No wishes yet. Be the first to send one!</p>";
+        return;
+      }
+      wishesList.innerHTML = "";
+      wishes.forEach((wish) => {
+        const div = document.createElement("div");
+        div.classList.add("wish-item");
+        div.innerHTML = `
+          ${wish.photo ? `<img src="${wish.photo}" class="wish-photo">` : ""}
+          <div class="wish-content">
+            <h4>${wish.fullName}</h4>
+            <p><strong>Email:</strong> ${wish.email}</p>
+            <p>${wish.message.length > 60 ? wish.message.substring(0, 60) + "..." : wish.message}</p>
+          </div>
+          <div class="wish-footer">
+            <button class="like-btn">❤️ <span>${wish.likes || 0}</span></button>
+          </div>
+        `;
+        div.addEventListener("click", (e) => {
+          if (e.target.classList.contains("like-btn")) return;
+          modalPhoto.src          = wish.photo || "";
+          modalPhoto.style.display= wish.photo ? "block" : "none";
+          modalName.textContent   = wish.fullName;
+          modalEmail.textContent  = wish.email;
+          modalMessage.textContent= wish.message;
+          detailModal.style.display = "block";
+        });
+        const likeBtn = div.querySelector(".like-btn");
+        likeBtn?.addEventListener("click", async (e) => {
+          e.stopPropagation();
+          const lastLiked = localStorage.getItem(`liked_${wish.id}`);
+          const now       = Date.now();
+          if (lastLiked && now - lastLiked < 24*60*60*1000) {
+            alert("You can only like once every 24 hours ❤️");
+            return;
+          }
+          try {
+            await fetch(`https://wedding-ncdk.vercel.app/api/wishes/${wish.id}/like`, { method: "POST" });
+            localStorage.setItem(`liked_${wish.id}`, now.toString());
+            loadWishes();
+          } catch(err) {
+            console.error("Failed to like:", err);
+          }
+        });
+        wishesList.appendChild(div);
+      });
+    } catch(err) {
+      console.error("Failed to load wishes:", err);
+      wishesList.innerHTML = "<p>Failed to load wishes.</p>";
+    }
+  }
 
-// ===== Load wishes from backend =====
-async function loadWishes() {
-  if (!wishesList) return;
-  wishesList.innerHTML = "<p>Loading wishes...</p>";
+  wishForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const fullName   = wishForm.fullName.value.trim();
+    const email      = wishForm.email.value.trim();
+    const message    = wishForm.wishes.value.trim();
+    const photoInput = wishForm.photo?.files[0];
 
-  try {
-    // ⚠️ CHANGE THIS URL to your actual backend endpoint on Vercel
-    const res = await fetch("https://wedding-ncdk.vercel.app/api/wishes");
-    const wishes = await res.json();
-
-    if (!Array.isArray(wishes) || wishes.length === 0) {
-      wishesList.innerHTML = "<p>No wishes yet. Be the first to send one!</p>";
+    if (!fullName || !email || !message) {
+      alert("Please fill out all required fields.");
       return;
     }
 
-    wishesList.innerHTML = "";
-    wishes.forEach((wish) => {
-      const div = document.createElement("div");
-      div.classList.add("wish-item");
-      div.innerHTML = `
-        ${wish.photo ? `<img src="${wish.photo}" class="wish-photo">` : ""}
-        <div class="wish-content">
-          <h4>${wish.fullName}</h4>
-          <p><strong>Email:</strong> ${wish.email}</p>
-          <p>${wish.message.length > 50 ? wish.message.substring(0, 50) + "..." : wish.message}</p>
-        </div>
-        <div class="wish-footer">
-          <button class="like-btn">❤️ <span>${wish.likes || 0}</span></button>
-        </div>
-      `;
-
-      // Open detail modal
-      div.addEventListener("click", (e) => {
-        if (e.target.classList.contains("like-btn")) return;
-        modalPhoto.style.display = wish.photo ? "block" : "none";
-        modalPhoto.src = wish.photo || "";
-        modalName.textContent = wish.fullName;
-        modalEmail.textContent = wish.email;
-        modalMessage.textContent = wish.message;
-        detailModal.style.display = "block";
-      });
-
-      // Like button (1 like per device)
-      const likeBtn = div.querySelector(".like-btn");
-      likeBtn?.addEventListener("click", async (e) => {
-        e.stopPropagation();
-        const lastLiked = localStorage.getItem(`liked_${wish.id}`);
-        const now = Date.now();
-        if (lastLiked && now - lastLiked < 24 * 60 * 60 * 1000) {
-          alert("You can only like once every 24 hours ❤️");
-          return;
-        }
-
-        try {
-          await fetch(`https://wedding-ncdk.vercel.app/api/wishes${wish.id}/like`, {
-            method: "POST",
-          });
-          localStorage.setItem(`liked_${wish.id}`, now.toString());
-          loadWishes();
-          createFloatingHeart(likeBtn);
-        } catch (err) {
-          console.error("Failed to like wish:", err);
-        }
-      });
-
-      wishesList.appendChild(div);
-    });
-  } catch (err) {
-    console.error("Failed to load wishes:", err);
-    wishesList.innerHTML = "<p>Failed to load wishes.</p>";
-  }
-}
-
-// ===== Submit new wish =====
-wishForm?.addEventListener("submit", (e) => {
-  e.preventDefault();
-  const fullName = wishForm.fullName.value.trim();
-  const email = wishForm.email.value.trim();
-  const message = wishForm.wishes.value.trim();
-  const photoInput = wishForm.photo?.files[0];
-  if (!fullName || !email || !message) return alert("Please fill in all fields!");
-
-  async function saveWish(photoData) {
-    try {
-      await fetch("https://wedding-ncdk.vercel.app/api/wishes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fullName, email, message, photo: photoData }),
-      });
-      loadWishes();
-      formModal.style.display = "none";
-      wishForm.reset();
-    } catch (err) {
-      console.error("Failed to save wish:", err);
-      alert("Something went wrong. Please try again later.");
+    async function saveWish(photoData) {
+      try {
+        await fetch("https://wedding-ncdk.vercel.app/api/wishes", {
+          method : "POST",
+          headers: { "Content-Type": "application/json" },
+          body   : JSON.stringify({ fullName, email, message, photo: photoData })
+        });
+        formModal.style.display = "none";
+        wishForm.reset();
+        loadWishes();
+      } catch(err) {
+        console.error("Failed to submit wish:", err);
+        alert("Something went wrong. Please try again later.");
+      }
     }
+
+    if (photoInput) {
+      const reader = new FileReader();
+      reader.onload = (evt) => saveWish(evt.target.result);
+      reader.readAsDataURL(photoInput);
+    } else {
+      saveWish(null);
+    }
+  });
+
+  function createFloatingHeart(button) {
+    const heart = document.createElement("div");
+    heart.textContent = "❤️";
+    heart.style.position   = "absolute";
+    const rect             = button.getBoundingClientRect();
+    heart.style.left       = `${rect.left + rect.width/2 + window.scrollX}px`;
+    heart.style.top        = `${rect.top + window.scrollY - 10}px`;
+    heart.style.fontSize   = "20px";
+    heart.style.opacity    = 1;
+    heart.style.transition = "transform 1s ease-out, opacity 1s ease-out";
+    heart.style.transform  = "translate(-50%, 0)";
+    document.body.appendChild(heart);
+    requestAnimationFrame(() => {
+      heart.style.transform = "translate(-50%, -80px)";
+      heart.style.opacity   = 0;
+    });
+    setTimeout(() => heart.remove(), 1000);
   }
 
-  if (photoInput) {
-    const reader = new FileReader();
-    reader.onload = (e) => saveWish(e.target.result);
-    reader.readAsDataURL(photoInput);
-  } else {
-    saveWish(null);
-  }
+  loadWishes();
 });
-
-// ===== Floating heart animation =====
-function createFloatingHeart(button) {
-  const heart = document.createElement("div");
-  heart.innerHTML = "❤️";
-  heart.style.position = "absolute";
-  const rect = button.getBoundingClientRect();
-  heart.style.left = `${rect.left + rect.width / 2 + window.scrollX}px`;
-  heart.style.top = `${rect.top - 10 + window.scrollY}px`;
-  heart.style.fontSize = "20px";
-  heart.style.opacity = 1;
-  heart.style.pointerEvents = "none";
-  heart.style.transition = "transform 1s ease-out, opacity 1s ease-out";
-  heart.style.transform = "translate(-50%, 0) scale(1)";
-  document.body.appendChild(heart);
-  setTimeout(() => {
-    heart.style.transform = "translate(-50%, -60px) scale(1.5)";
-    heart.style.opacity = 0;
-  }, 50);
-  setTimeout(() => heart.remove(), 1000);
-}
-
-// Load wishes on page load
-loadWishes();
