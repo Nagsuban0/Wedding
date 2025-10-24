@@ -197,6 +197,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.target === detailModal) detailModal.style.display = "none";
   });
 
+  // ===== Load Wishes =====
   async function loadWishes() {
     if (!wishesList) return;
     wishesList.innerHTML = "<p>Loading wishes…</p>";
@@ -222,15 +223,17 @@ document.addEventListener("DOMContentLoaded", () => {
             <button class="like-btn">❤️ <span>${wish.likes || 0}</span></button>
           </div>
         `;
+
         div.addEventListener("click", (e) => {
           if (e.target.classList.contains("like-btn")) return;
-          modalPhoto.src          = wish.photo || "";
-          modalPhoto.style.display= wish.photo ? "block" : "none";
-          modalName.textContent   = wish.fullName;
-          modalEmail.textContent  = wish.email;
-          modalMessage.textContent= wish.message;
+          modalPhoto.src           = wish.photo || "";
+          modalPhoto.style.display = wish.photo ? "block" : "none";
+          modalName.textContent    = wish.fullName;
+          modalEmail.textContent   = wish.email;
+          modalMessage.textContent = wish.message;
           detailModal.style.display = "block";
         });
+
         const likeBtn = div.querySelector(".like-btn");
         likeBtn?.addEventListener("click", async (e) => {
           e.stopPropagation();
@@ -240,14 +243,22 @@ document.addEventListener("DOMContentLoaded", () => {
             alert("You can only like once every 24 hours ❤️");
             return;
           }
+
+          // Optimistic UI update
+          const likeCountSpan = likeBtn.querySelector("span");
+          likeCountSpan.textContent = (parseInt(likeCountSpan.textContent) + 1);
+
           try {
             await fetch(`https://wedding-ncdk.vercel.app/api/wishes/${wish.id}/like`, { method: "POST" });
             localStorage.setItem(`liked_${wish.id}`, now.toString());
-            loadWishes();
+            createFloatingHeart(likeBtn);
           } catch(err) {
             console.error("Failed to like:", err);
+            likeCountSpan.textContent = (parseInt(likeCountSpan.textContent) - 1);
+            alert("Failed to like. Please try again.");
           }
         });
+
         wishesList.appendChild(div);
       });
     } catch(err) {
@@ -256,61 +267,44 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  wishForm?.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const fullName   = wishForm.fullName.value.trim();
-    const email      = wishForm.email.value.trim();
-    const message    = wishForm.wishes.value.trim();
-    const photoInput = wishForm.photo?.files[0];
-
-    if (!fullName || !email || !message) {
-      alert("Please fill out all required fields.");
-      return;
-    }
-
-    async function saveWish(photoData) {
-      try {
-        await fetch("https://wedding-ncdk.vercel.app/api/wishes", {
-          method : "POST",
-          headers: { "Content-Type": "application/json" },
-          body   : JSON.stringify({ fullName, email, message, photo: photoData })
-        });
-        formModal.style.display = "none";
-        wishForm.reset();
-        loadWishes();
-      } catch(err) {
-        console.error("Failed to submit wish:", err);
-        alert("Something went wrong. Please try again later.");
-      }
-    }
-
-    if (photoInput) {
-      const reader = new FileReader();
-      reader.onload = (evt) => saveWish(evt.target.result);
-      reader.readAsDataURL(photoInput);
-    } else {
-      saveWish(null);
-    }
-  });
-
+  // ===== Floating Heart Animation =====
   function createFloatingHeart(button) {
-    const heart = document.createElement("div");
+    const heart = document.createElement("span");
+    heart.className = "floating-heart";
     heart.textContent = "❤️";
-    heart.style.position   = "absolute";
-    const rect             = button.getBoundingClientRect();
-    heart.style.left       = `${rect.left + rect.width/2 + window.scrollX}px`;
-    heart.style.top        = `${rect.top + window.scrollY - 10}px`;
-    heart.style.fontSize   = "20px";
-    heart.style.opacity    = 1;
-    heart.style.transition = "transform 1s ease-out, opacity 1s ease-out";
-    heart.style.transform  = "translate(-50%, 0)";
+    const rect = button.getBoundingClientRect();
+    heart.style.left = `${rect.left + rect.width/2}px`;
+    heart.style.top  = `${rect.top - 10}px`;
     document.body.appendChild(heart);
-    requestAnimationFrame(() => {
-      heart.style.transform = "translate(-50%, -80px)";
-      heart.style.opacity   = 0;
-    });
     setTimeout(() => heart.remove(), 1000);
   }
+
+  // ===== Submit Wish =====
+  wishForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const formData = new FormData(wishForm);
+    const data = {
+      fullName: formData.get("fullName"),
+      email: formData.get("email"),
+      message: formData.get("message"),
+      photo: formData.get("photo")
+    };
+    try {
+      const res = await fetch("https://wedding-ncdk.vercel.app/api/wishes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+      if (!res.ok) throw new Error("Failed to submit wish");
+      alert("Wish sent successfully! ❤️");
+      wishForm.reset();
+      formModal.style.display = "none";
+      loadWishes(); // refresh wish list
+    } catch(err) {
+      console.error(err);
+      alert("Failed to send wish. Please try again.");
+    }
+  });
 
   loadWishes();
 });
