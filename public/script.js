@@ -158,157 +158,162 @@ document.addEventListener("DOMContentLoaded", () => {
   sections.forEach((section) => sectionObserver.observe(section));
 
   // ===== Wish System =====
-  const wishesWrapper = document.querySelector(".wishes-wrapper");
-  const wishesList = document.getElementById("wishesList");
-  const wishForm = document.getElementById("wishForm");
-  const modalWish = document.getElementById("wishModal");
-  const openModalBtnWish = document.getElementById("openModalBtn");
-  const closeModalWish = document.querySelector(".close-modal");
+const wishesList = document.getElementById("wishesList");
+const wishForm = document.getElementById("wishForm");
+const openModalBtnWish = document.getElementById("openModalBtn");
 
-  const wishModal = document.getElementById("wishModal");
-  const modalPhoto = document.getElementById("modalPhoto");
-  const modalName = document.getElementById("modalName");
-  const modalEmail = document.getElementById("modalEmail");
-  const modalMessage = document.getElementById("modalMessage");
-  const closeWishModal = wishModal?.querySelector(".close-modal");
+// Correct modal references
+const formModal = document.getElementById("wishModalForm");  // form modal
+const detailModal = document.getElementById("wishModal");    // detail modal
 
-  // Open/close modals
-  openModalBtnWish?.addEventListener("click", () => modalWish.style.display = "block");
-  closeModalWish?.addEventListener("click", () => modalWish.style.display = "none");
-  closeWishModal?.addEventListener("click", () => wishModal.style.display = "none");
-  window.addEventListener("click", e => {
-    if(e.target === modalWish) modalWish.style.display = "none";
-    if(e.target === wishModal) wishModal.style.display = "none";
-  });
+// Detail modal elements
+const modalPhoto = document.getElementById("modalPhoto");
+const modalName = document.getElementById("modalName");
+const modalEmail = document.getElementById("modalEmail");
+const modalMessage = document.getElementById("modalMessage");
 
-  async function loadWishes() {
-    if (!wishesList) return;
-    wishesList.innerHTML = "";
-    try {
-      const res = await fetch("https://nagsuban0.github.io/api/wishes");
-      const wishes = await res.json();
+// Close buttons
+const closeFormModal = formModal?.querySelector(".close-modal");
+const closeDetailModal = detailModal?.querySelector(".close-modal");
 
-      wishes.forEach((wish) => {
-        const div = document.createElement("div");
-        div.classList.add("wish-item");
-        div.innerHTML = `
-          ${wish.photo ? `<img src="${wish.photo}" class="wish-photo">` : ""}
-          <div class="wish-content">
-            <h4>${wish.fullName}</h4>
-            <p><strong>Email:</strong> ${wish.email}</p>
-            <p>${wish.message.length > 50 ? wish.message.substring(0,50) + "..." : wish.message}</p>
-          </div>
-          <div class="wish-footer">
-            <button class="like-btn">❤️ <span>${wish.likes || 0}</span></button>
-          </div>
-        `;
-
-        // Open modal
-        div.addEventListener("click", (e) => {
-          if(e.target.classList.contains("like-btn")) return;
-          if(modalPhoto) {
-            modalPhoto.style.display = wish.photo ? "block" : "none";
-            modalPhoto.src = wish.photo || "";
-          }
-          if(modalName) modalName.textContent = wish.fullName;
-          if(modalEmail) modalEmail.textContent = wish.email;
-          if(modalMessage) modalMessage.textContent = wish.message;
-          wishModal.style.display = "block";
-        });
-
-        // Like button
-        const likeBtn = div.querySelector(".like-btn");
-        likeBtn?.addEventListener("click", async (e) => {
-          e.stopPropagation();
-          try {
-            await fetch(`https://nagsuban0.github.io/api/wishes/${wish.id}/like`, { method: "POST" });
-            loadWishes();
-            createFloatingHeart(likeBtn);
-          } catch(err) {
-            console.error("Failed to like wish:", err);
-          }
-        });
-
-        wishesList.appendChild(div);
-      });
-    } catch(err) {
-      console.error("Failed to load wishes:", err);
-    }
-  }
-
-  wishForm?.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const fullName = wishForm.fullName.value.trim();
-    const email = wishForm.email.value.trim();
-    const message = wishForm.wishes.value.trim();
-    const photoInput = wishForm.photo?.files[0];
-    if(!fullName || !email || !message) return;
-
-    async function saveWishServer(photoData){
-      try {
-        await fetch("https://nagsuban0.github.io/api/wishes", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ fullName, email, message, photo: photoData })
-        });
-        loadWishes();
-        modalWish.style.display = "none";
-        wishForm.reset();
-      } catch(err) {
-        console.error("Failed to save wish:", err);
-      }
-    }
-
-    if(photoInput){
-      const reader = new FileReader();
-      reader.onload = e => saveWishServer(e.target.result);
-      reader.readAsDataURL(photoInput);
-    } else {
-      saveWishServer(null);
-    }
-  });
-
-  // ===== Swipeable wishes & floating hearts =====
-  if (wishesWrapper) {
-    let wishStartX = 0;
-    let wishScrollLeft = 0;
-
-    wishesWrapper.addEventListener("touchstart", e => {
-      wishStartX = e.touches[0].pageX - wishesWrapper.offsetLeft;
-      wishScrollLeft = wishesWrapper.scrollLeft;
-    });
-
-    wishesWrapper.addEventListener("touchmove", e => {
-      const x = e.touches[0].pageX - wishesWrapper.offsetLeft;
-      const walk = (wishStartX - x);
-      wishesWrapper.scrollLeft = wishScrollLeft + walk;
-    });
-  }
-
-  function createFloatingHeart(button) {
-    if(!button) return;
-    const heart = document.createElement("div");
-    heart.innerHTML = "❤️";
-    heart.style.position = "absolute";
-
-    const rect = button.getBoundingClientRect();
-    heart.style.left = `${rect.left + rect.width / 2 + window.scrollX}px`;
-    heart.style.top = `${rect.top - 10 + window.scrollY}px`;
-
-    heart.style.fontSize = "20px";
-    heart.style.opacity = 1;
-    heart.style.pointerEvents = "none";
-    heart.style.transition = "transform 1s ease-out, opacity 1s ease-out";
-    heart.style.transform = "translate(-50%, 0) scale(1)";
-    document.body.appendChild(heart);
-
-    setTimeout(() => {
-      heart.style.transform = "translate(-50%, -60px) scale(1.5)";
-      heart.style.opacity = 0;
-    }, 50);
-
-    setTimeout(() => heart.remove(), 1000);
-  }
-
-  loadWishes();
+// ===== Open/Close modals =====
+openModalBtnWish?.addEventListener("click", () => {
+  formModal.style.display = "block";
 });
+closeFormModal?.addEventListener("click", () => formModal.style.display = "none");
+closeDetailModal?.addEventListener("click", () => detailModal.style.display = "none");
+window.addEventListener("click", (e) => {
+  if (e.target === formModal) formModal.style.display = "none";
+  if (e.target === detailModal) detailModal.style.display = "none";
+});
+
+// ===== Load wishes from backend =====
+async function loadWishes() {
+  if (!wishesList) return;
+  wishesList.innerHTML = "<p>Loading wishes...</p>";
+
+  try {
+    // ⚠️ CHANGE THIS URL to your actual backend endpoint on Vercel
+    const res = await fetch("https://your-vercel-app.vercel.app/api/wishes");
+    const wishes = await res.json();
+
+    if (!Array.isArray(wishes) || wishes.length === 0) {
+      wishesList.innerHTML = "<p>No wishes yet. Be the first to send one!</p>";
+      return;
+    }
+
+    wishesList.innerHTML = "";
+    wishes.forEach((wish) => {
+      const div = document.createElement("div");
+      div.classList.add("wish-item");
+      div.innerHTML = `
+        ${wish.photo ? `<img src="${wish.photo}" class="wish-photo">` : ""}
+        <div class="wish-content">
+          <h4>${wish.fullName}</h4>
+          <p><strong>Email:</strong> ${wish.email}</p>
+          <p>${wish.message.length > 50 ? wish.message.substring(0, 50) + "..." : wish.message}</p>
+        </div>
+        <div class="wish-footer">
+          <button class="like-btn">❤️ <span>${wish.likes || 0}</span></button>
+        </div>
+      `;
+
+      // Open detail modal
+      div.addEventListener("click", (e) => {
+        if (e.target.classList.contains("like-btn")) return;
+        modalPhoto.style.display = wish.photo ? "block" : "none";
+        modalPhoto.src = wish.photo || "";
+        modalName.textContent = wish.fullName;
+        modalEmail.textContent = wish.email;
+        modalMessage.textContent = wish.message;
+        detailModal.style.display = "block";
+      });
+
+      // Like button (1 like per device)
+      const likeBtn = div.querySelector(".like-btn");
+      likeBtn?.addEventListener("click", async (e) => {
+        e.stopPropagation();
+        const lastLiked = localStorage.getItem(`liked_${wish.id}`);
+        const now = Date.now();
+        if (lastLiked && now - lastLiked < 24 * 60 * 60 * 1000) {
+          alert("You can only like once every 24 hours ❤️");
+          return;
+        }
+
+        try {
+          await fetch(`https://your-vercel-app.vercel.app/api/wishes/${wish.id}/like`, {
+            method: "POST",
+          });
+          localStorage.setItem(`liked_${wish.id}`, now.toString());
+          loadWishes();
+          createFloatingHeart(likeBtn);
+        } catch (err) {
+          console.error("Failed to like wish:", err);
+        }
+      });
+
+      wishesList.appendChild(div);
+    });
+  } catch (err) {
+    console.error("Failed to load wishes:", err);
+    wishesList.innerHTML = "<p>Failed to load wishes.</p>";
+  }
+}
+
+// ===== Submit new wish =====
+wishForm?.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const fullName = wishForm.fullName.value.trim();
+  const email = wishForm.email.value.trim();
+  const message = wishForm.wishes.value.trim();
+  const photoInput = wishForm.photo?.files[0];
+  if (!fullName || !email || !message) return alert("Please fill in all fields!");
+
+  async function saveWish(photoData) {
+    try {
+      await fetch("https://your-vercel-app.vercel.app/api/wishes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fullName, email, message, photo: photoData }),
+      });
+      loadWishes();
+      formModal.style.display = "none";
+      wishForm.reset();
+    } catch (err) {
+      console.error("Failed to save wish:", err);
+      alert("Something went wrong. Please try again later.");
+    }
+  }
+
+  if (photoInput) {
+    const reader = new FileReader();
+    reader.onload = (e) => saveWish(e.target.result);
+    reader.readAsDataURL(photoInput);
+  } else {
+    saveWish(null);
+  }
+});
+
+// ===== Floating heart animation =====
+function createFloatingHeart(button) {
+  const heart = document.createElement("div");
+  heart.innerHTML = "❤️";
+  heart.style.position = "absolute";
+  const rect = button.getBoundingClientRect();
+  heart.style.left = `${rect.left + rect.width / 2 + window.scrollX}px`;
+  heart.style.top = `${rect.top - 10 + window.scrollY}px`;
+  heart.style.fontSize = "20px";
+  heart.style.opacity = 1;
+  heart.style.pointerEvents = "none";
+  heart.style.transition = "transform 1s ease-out, opacity 1s ease-out";
+  heart.style.transform = "translate(-50%, 0) scale(1)";
+  document.body.appendChild(heart);
+  setTimeout(() => {
+    heart.style.transform = "translate(-50%, -60px) scale(1.5)";
+    heart.style.opacity = 0;
+  }, 50);
+  setTimeout(() => heart.remove(), 1000);
+}
+
+// Load wishes on page load
+loadWishes();

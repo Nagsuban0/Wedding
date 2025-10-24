@@ -1,0 +1,461 @@
+/* ===============================
+   VICTOR & ANALYKA — STYLISH CSS
+   Rose Gold × Navy Blue Edition
+   =============================== */
+
+/* ===== GLOBAL RESET ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+  background: #f8f9fc;
+  color: #222;
+  overflow-x: hidden;
+  transition: background 0.6s ease, color 0.6s ease;
+}
+
+/* ===== COLOR PALETTE ===== */
+:root {
+  --rose-gold: #b76e79;
+  --rose-gold-light: #f3b1b3;
+  --navy: #1b1f3b;
+  --navy-light: #2f3b63;
+  --white-glass: rgba(255, 255, 255, 0.2);
+  --shadow: rgba(0, 0, 0, 0.2);
+}
+
+/* ===== DARK MODE ===== */
+body.dark-mode {
+  background: #0f172a;
+  color: #f1f5f9;
+}
+
+body.dark-mode .navbar,
+body.dark-mode .footer {
+  background: rgba(15, 23, 42, 0.8);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ===== NAVBAR ===== */
+.navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  backdrop-filter: blur(12px);
+  background: linear-gradient(135deg, rgba(27, 31, 59, 0.8), rgba(183, 110, 121, 0.5));
+  border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 4px 25px var(--shadow);
+  z-index: 1000;
+  transition: all 0.4s ease;
+}
+
+.navbar .nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 40px;
+}
+
+.nav-links {
+  display: flex;
+  list-style: none;
+  gap: 25px;
+}
+
+.nav-links a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  color: var(--rose-gold-light);
+  transform: scale(1.1);
+}
+
+.logo {
+  font-family: "Great Vibes", cursive;
+  font-size: 1.9rem;
+  color: #fff;
+  letter-spacing: 1px;
+  text-shadow: 0 0 10px rgba(183, 110, 121, 0.7);
+}
+
+.logo span {
+  color: var(--rose-gold-light);
+}
+
+/* ===== DARK MODE BUTTON ===== */
+#darkModeToggle {
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  padding: 8px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: #fff;
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+
+#darkModeToggle:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+/* ===== HERO SECTION ===== */
+.hero-section {
+  position: relative;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow: hidden;
+}
+
+.hero-section .slider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.slide {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 1.5s ease;
+}
+
+.slide.active {
+  opacity: 1;
+}
+
+.slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero-text {
+  position: relative;
+  z-index: 10;
+  color: #fff;
+  text-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+  animation: fadeUp 1.5s ease forwards;
+}
+
+.hero-text h1 {
+  font-family: "Great Vibes", cursive;
+  font-size: 3.5rem;
+}
+
+.hero-text p {
+  font-size: 1.2rem;
+  opacity: 0.85;
+}
+
+/* ===== DOTS ===== */
+.dots {
+  position: absolute;
+  bottom: 25px;
+  width: 100%;
+  text-align: center;
+}
+
+.dot {
+  height: 10px;
+  width: 10px;
+  margin: 0 5px;
+  background-color: rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  display: inline-block;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.dot.active {
+  background-color: var(--rose-gold-light);
+  transform: scale(1.2);
+}
+
+/* ===== STORY SECTION ===== */
+.story-section {
+  padding: 100px 20px;
+  background: linear-gradient(180deg, #fff 0%, #f8f9fc 100%);
+  text-align: center;
+}
+
+.story-section h2 {
+  font-family: "Great Vibes", cursive;
+  font-size: 2.8rem;
+  color: var(--rose-gold);
+  margin-bottom: 10px;
+}
+
+.story-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 50px auto;
+  opacity: 0;
+  transform: translateY(50px);
+  transition: all 1s ease;
+}
+
+.story-item.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.story-item.left .story-content {
+  text-align: right;
+}
+
+.story-content h3 {
+  color: var(--navy);
+}
+
+.story-img img {
+  width: 280px;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  transition: transform 0.5s ease;
+}
+
+.story-img img:hover {
+  transform: scale(1.05);
+}
+
+/* ===== GALLERY ===== */
+.gallery-section {
+  padding: 100px 20px;
+  text-align: center;
+}
+
+.gallery-section h2 {
+  color: var(--rose-gold);
+}
+
+.gallery-collage {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-gap: 12px;
+}
+
+.gallery-item {
+  overflow: hidden;
+  border-radius: 15px;
+  position: relative;
+}
+
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease, filter 0.4s ease;
+}
+
+.gallery-item:hover img {
+  transform: scale(1.1);
+  filter: brightness(1.1);
+}
+
+/* ===== WISH SECTION ===== */
+#wish {
+  text-align: center;
+  padding: 100px 20px;
+  background: linear-gradient(135deg, #fff 0%, #fdf2f3 100%);
+}
+
+#wish h2 {
+  font-family: "Great Vibes", cursive;
+  font-size: 2.5rem;
+  color: var(--rose-gold);
+}
+
+.wish-btn {
+  padding: 12px 30px;
+  border: none;
+  background: linear-gradient(135deg, var(--rose-gold-light), var(--rose-gold));
+  border-radius: 40px;
+  font-size: 1rem;
+  color: white;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.wish-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(183, 110, 121, 0.5);
+}
+
+/* ===== MODAL ===== */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 2000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.6);
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 18px;
+  padding: 30px;
+  max-width: 500px;
+  margin: 100px auto;
+  position: relative;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+  animation: popIn 0.4s ease;
+}
+
+.close-modal {
+  position: absolute;
+  right: 15px;
+  top: 10px;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #555;
+  transition: color 0.3s;
+}
+
+.close-modal:hover {
+  color: var(--rose-gold);
+}
+
+/* ===== WISH LIST ===== */
+.wishes-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 15px;
+  margin-top: 30px;
+}
+
+.wish-item {
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 15px;
+  padding: 15px;
+  backdrop-filter: blur(10px);
+  color: #222;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.wish-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.like-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.3rem;
+  transition: transform 0.2s ease, color 0.3s ease;
+  color: #aaa;
+}
+
+.like-btn.liked {
+  color: var(--rose-gold);
+}
+
+.like-btn:hover {
+  transform: scale(1.2);
+  color: var(--rose-gold-light);
+}
+
+/* ===== FOOTER ===== */
+.footer {
+  background: linear-gradient(135deg, rgba(27, 31, 59, 0.9), rgba(183, 110, 121, 0.7));
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255, 255, 255, 0.25);
+  text-align: center;
+  padding: 25px 10px;
+  color: white;
+  font-size: 0.9rem;
+  box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.2);
+}
+
+.footer-logo {
+  font-family: "Great Vibes", cursive;
+  font-size: 1.8rem;
+  margin-bottom: 5px;
+}
+
+.footer-logo span {
+  color: var(--rose-gold-light);
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes popIn {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .story-item {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .nav-container {
+    flex-wrap: wrap;
+  }
+
+  .nav-links {
+    display: none;
+    flex-direction: column;
+    background: rgba(27, 31, 59, 0.95);
+    width: 100%;
+    text-align: center;
+    padding: 10px 0;
+  }
+
+  .nav-links.show {
+    display: flex;
+  }
+}
