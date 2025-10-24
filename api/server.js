@@ -1,111 +1,83 @@
 // server.js
-const express = require("express");
-const cors = require("cors");
-const { v4: uuidv4 } = require("uuid");
+import express from "express";
+import cors from "cors";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const app = express();
+const PORT = process.env.PORT || 5000;
+
+// ===== Middleware =====
 app.use(cors());
-app.use(express.json({ limit: "10mb" })); // allow large image payloads
+app.use(express.json({ limit: "10mb" })); // handle JSON and base64 photos
+app.use(express.urlencoded({ extended: true }));
 
-const PORT = process.env.PORT || 3000;
+// ===== MongoDB Setup =====
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+  .then(() => console.log("MongoDB connected"))
+  .catch((err) => console.error("MongoDB connection error:", err));
 
-// ===== In-memory storage (replace with DB in production) =====
-let wishes = [];
+// ===== Wish Schema =====
+const wishSchema = new mongoose.Schema({
+  fullName: { type: String, required: true },
+  email: { type: String, required: true },
+  message: { type: String, required: true },
+  photo: { type: String, default: "" },
+  likes: { type: Number, default: 0 },
+}, { timestamps: true });
 
-// ===== Utility: filter wishes by expiry date =====
-function filterValidWishes(days = 30) {
-  const now = Date.now();
-  return wishes.filter(wish => {
-    const created = wish.date ? new Date(wish.date).getTime() : now;
-    return now - created <= days * 24 * 60 * 60 * 1000;
-  });
-}
+const Wish = mongoose.model("Wish", wishSchema);
 
+// ===== Routes =====
 
-// ===== GET all wishes =====
-app.get("/api/wishes", (req, res) => {
+// Get all wishes
+app.get("/api/wishes", async (req, res) => {
   try {
-    const days = parseInt(req.query.days) || 30;
-    const validWishes = filterValidWishes(days);
-    res.json(validWishes);
+    const wishes = await Wish.find().sort({ createdAt: -1 });
+    res.json(wishes);
   } catch (err) {
-    console.error("Error in GET /api/wishes:", err);
-    res.status(500).json({ error: "Server error" });
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch wishes" });
   }
 });
 
-// ===== POST new wish =====
-app.post("/api/wishes", (req, res) => {
+// Submit a new wish
+app.post("/api/wishes", async (req, res) => {
+  const { fullName, email, message, photo } = req.body;
+  if (!fullName || !email || !message) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+
   try {
-    const { fullName, email, message, photo, date, durationDays } = req.body;
-
-    if (!fullName || !email || !message) {
-      return res.status(400).json({ error: "Missing required fields" });
-    }
-
-    const wishDate = date ? new Date(date) : new Date();
-    if (isNaN(wishDate.getTime())) {
-      return res.status(400).json({ error: "Invalid date" });
-    }
-
-    const wish = {
-      id: uuidv4(),
-      fullName,
-      email,
-      message,
-      photo: photo || null,
-      date: wishDate.toISOString(),
-      durationDays: durationDays || 30,
-      likes: 0,
-    };
-
-    wishes.push(wish);
-    res.status(201).json({ message: "Wish added", wish });
+    const newWish = new Wish({ fullName, email, message, photo });
+    await newWish.save();
+    res.status(201).json(newWish);
   } catch (err) {
-    console.error("Error in POST /api/wishes:", err);
-    res.status(500).json({ error: "Server error" });
+    console.error(err);
+    res.status(500).json({ error: "Failed to create wish" });
   }
 });
 
-// ===== PATCH wish (update likes or duration) =====
-app.patch("/api/wishes/:id", (req, res) => {
+// Like a wish
+app.post("/api/wishes/:id/like", async (req, res) => {
   try {
-    const { id } = req.params;
-    const wish = wishes.find(w => w.id === id);
+    const wish = await Wish.findById(req.params.id);
     if (!wish) return res.status(404).json({ error: "Wish not found" });
-
-    const { likes, durationDays, fullName, email, message, photo } = req.body;
-
-    if (likes !== undefined) wish.likes = likes;
-    if (durationDays !== undefined) wish.durationDays = durationDays;
-    if (fullName) wish.fullName = fullName;
-    if (email) wish.email = email;
-    if (message) wish.message = message;
-    if (photo) wish.photo = photo;
-
-    res.json({ message: "Wish updated", wish });
-  } catch (err) {
-    console.error("Error in PATCH /api/wishes/:id:", err);
-    res.status(500).json({ error: "Server error" });
-  }
-});
-
-// ===== Like a wish (increment likes safely) =====
-app.post("/api/wishes/:id/like", (req, res) => {
-  try {
-    const { id } = req.params;
-    const wish = wishes.find(w => w.id === id);
-    if (!wish) return res.status(404).json({ error: "Wish not found" });
-
     wish.likes += 1;
-    res.json({ message: "Wish liked", likes: wish.likes });
+    await wish.save();
+    res.json({ likes: wish.likes });
   } catch (err) {
-    console.error("Error in POST /api/wishes/:id/like:", err);
-    res.status(500).json({ error: "Server error" });
+    console.error(err);
+    res.status(500).json({ error: "Failed to like wish" });
   }
 });
 
-// ===== Start server =====
+// ===== Start Server =====
 app.listen(PORT, () => {
-  console.log(`Wish server running on http://localhost:${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}`);
 });
