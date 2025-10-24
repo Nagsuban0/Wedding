@@ -201,7 +201,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!wishesList) return;
     wishesList.innerHTML = "<p>Loading wishes…</p>";
     try {
-      const res = await fetch("https://nagsuban0.github.io/api/wishes");
+      const res = await fetch("https://wedding-ncdk.vercel.app/api/wishes");
       if (!res.ok) throw new Error(`Server error: ${res.status}`);
       const wishes = await res.json();
 
