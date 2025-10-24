@@ -11,8 +11,8 @@
 <body>
   <!-- ===== Animated Background ===== -->
   <div class="animated-background">
-    <img src="img/page20.jpg" alt="Background Left" class="bg-left">
-    <img src="img/page20.jpg" alt="Background Right" class="bg-right">
+    <img src="img/Image-101.jpg" alt="Background Left" class="bg-left">
+    <img src="img/Image-109.jpg" alt="Background Right" class="bg-right">
   </div>
 
   <!-- ===== Updated Glassy Sticky Navbar ===== -->
@@ -30,7 +30,7 @@
 
       <!-- Right Links -->
       <ul class="nav-links right-links">
-        <li><a href="#wish">Wish</a></li>
+        <li><a href="#contact">Contact</a></li>
       </ul>
 
       <!-- Dark Mode Toggle -->
@@ -145,24 +145,24 @@
     </div>
   </section>
 
-<!-- ===== WISH SECTION ===== -->
-<section id="wish" class="section">
-  <h2>Send Your Wishes</h2>
-  <p>Share your love and blessings with us!</p>
-
+<!-- ===== CONTACT SECTION ===== -->
+<section id="contact" class="section">
+  <h2>Contact</h2>
+  <p>Reach out to us anytime!</p>
+  
   <!-- Button to open modal -->
-  <button id="openModalBtn" class="wish-btn">Send a Wish</button>
+  <button id="openModalBtn" class="contact-btn">Send a Wish</button>
 
   <!-- Display submitted wishes -->
   <div id="wishesList" class="wishes-list"></div>
 </section>
 
-<!-- ===== WISH FORM MODAL ===== -->
-<div id="wishModalForm" class="modal">
+<!-- Modal Form -->
+<div id="contactModal" class="modal">
   <div class="modal-content">
     <span class="close-modal">&times;</span>
     <h3>Send Your Wishes</h3>
-    <form id="wishForm">
+    <form id="contactForm">
       <label for="fullName">Full Name</label>
       <input type="text" id="fullName" name="fullName" placeholder="Your full name" required>
 
@@ -180,34 +180,6 @@
   </div>
 </div>
 
-<!-- ===== WISH DETAIL MODAL ===== -->
-<div id="wishModal" class="modal">
-  <div class="modal-content">
-    <span class="close-modal">&times;</span>
-    <img id="modalPhoto" src="" alt="Photo" class="modal-photo">
-    <h3 id="modalName"></h3>
-    <p id="modalEmail"></p>
-    <p id="modalMessage"></p>
-  </div>
-</div>
-
-
-
-<!-- Display submitted wishes -->
-<div class="wishes-wrapper">
-  <div id="wishesList" class="wishes-list"></div>
-</div>
-
-<!-- Wish Detail Modal -->
-<div id="wishModal" class="modal">
-  <div class="modal-content">
-    <span class="close-modal">&times;</span>
-    <img id="modalPhoto" src="" alt="Photo" class="modal-photo">
-    <h3 id="modalName"></h3>
-    <p id="modalEmail"></p>
-    <p id="modalMessage"></p>
-  </div>
-</div>
 <!-- Display submitted wishes -->
 <div class="wishes-wrapper">
   <div id="wishesList" class="wishes-list"></div>
