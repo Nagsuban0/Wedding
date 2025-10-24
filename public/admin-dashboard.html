@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    img { max-width: 150px; margin: 5px; }
+  </style>
+</head>
+<body>
+  <h1>Admin Dashboard</h1>
+  <button id="logoutBtn">Logout</button>
+
+  <h2>Pending Users</h2>
+  <div id="pendingUsers"></div>
+
+  <h2>Wishes</h2>
+  <div id="wishesList"></div>
+
+  <h2>Add/Update Section Content</h2>
+  <form id="contentForm">
+    <label>Section:
+      <select id="sectionSelect">
+        <option value="hero">Hero</option>
+        <option value="story">Story</option>
+      </select>
+    </label><br /><br />
+    <label>Text:</label><br />
+    <textarea id="sectionText" rows="4" cols="50"></textarea><br /><br />
+    <label>Upload Photo:</label>
+    <input type="file" id="sectionPhotoInput" accept="image/*" /><br /><br />
+    <button type="submit">Update Section</button>
+  </form>
+  <p id="contentMsg"></p>
+
+  <script>
+    async function fetchPendingUsers() {
+      const res = await fetch('/api/admin/users');
+      if (!res.ok) {
+        alert('Unauthorized, login again');
+        window.location.href = 'login.html';
+        return;
+      }
+      const users = await res.json();
+      const pendingDiv = document.getElementById('pendingUsers');
+      pendingDiv.innerHTML = '';
+      users.filter(u => !u.approved).forEach(user => {
+        const div = document.createElement('div');
+        div.textContent = `Username: ${user.username} `;
+        const btn = document.createElement('button');
+        btn.textContent = 'Approve';
+        btn.onclick = async () => {
+          await fetch(`/api/admin/users/approve/${user.id}`, { method: 'POST' });
+          fetchPendingUsers();
+        };
+        div.appendChild(btn);
+        pendingDiv.appendChild(div);
+      });
+    }
+
+    async function fetchWishes() {
+      const res = await fetch('/api/admin/wishes');
+      if (!res.ok) {
+        alert('Unauthorized');
+        window.location.href = 'login.html';
+        return;
+      }
+      const wishes = await res.json();
+      const wishesDiv = document.getElementById('wishesList');
+      wishesDiv.innerHTML = '';
+      wishes.forEach(w => {
+        const div = document.createElement('div');
+        div.innerHTML = `<strong>${w.username}:</strong> ${w.message} <button data-id="${w.id}">Remove</button>`;
+        div.querySelector('button').onclick = async () => {
+          await fetch(`/api/admin/wishes/${w.id}`, { method: 'DELETE' });
+          fetchWishes();
+        };
+        wishesDiv.appendChild(div);
+      });
+    }
+
+    // Content update
+    let uploadedPhotoUrl = '';
+    document.getElementById('sectionPhotoInput').onchange = async e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const formData = new FormData();
+      formData.append('photo', file);
+      const res = await fetch('/api/admin-upload-photo', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json();
+      uploadedPhotoUrl = data.photoUrl;
+      document.getElementById('contentMsg').textContent = 'Photo uploaded, ready to update';
+    };
+
+    document.getElementById('contentForm').onsubmit = async e => {
+      e.preventDefault();
+      const section = document.getElementById('sectionSelect').value;
+      const text = document.getElementById('sectionText').value;
+      const photo = uploadedPhotoUrl || undefined;
+      const body = { section, text };
+      if (photo) body.photo = photo;
+
+      const res = await fetch('/api/admin/content', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      document.getElementById('contentMsg').textContent = data.message;
+      uploadedPhotoUrl = '';
+      document.getElementById('sectionPhotoInput').value = '';
+    };
+
+    document.getElementById('logoutBtn').onclick = async () => {
+      await fetch('/api/logout', { method: 'POST' });
+      window.location.href = 'login.html';
+    };
+
+    fetchPendingUsers();
+    fetchWishes();
+  </script>
+</body>
+</html>

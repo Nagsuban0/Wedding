@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>User Dashboard</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <h1>User Dashboard</h1>
+  <button id="logoutBtn">Logout</button>
+
+  <h2>Send a Wish</h2>
+  <form id="wishForm">
+    <textarea id="wishMessage" rows="4" cols="50" required></textarea><br />
+    <button type="submit">Send Wish</button>
+  </form>
+  <p id="wishMsg"></p>
+
+  <h2>Upload Photo</h2>
+  <form id="photoForm" enctype="multipart/form-data">
+    <input type="file" name="photo" id="photoInput" accept="image/*" required />
+    <button type="submit">Upload</button>
+  </form>
+  <p id="photoMsg"></p>
+
+  <h2>Your Photos</h2>
+  <div id="userPhotos"></div>
+
+  <script>
+    async function fetchUserData() {
+      const res = await fetch('/api/user-data');
+      if (res.ok) {
+        const data = await res.json();
+        const photosDiv = document.getElementById('userPhotos');
+        photosDiv.innerHTML = '';
+        data.photos.forEach(photoUrl => {
+          const img = document.createElement('img');
+          img.src = photoUrl;
+          img.style.width = '150px';
+          img.style.margin = '5px';
+          photosDiv.appendChild(img);
+        });
+      } else {
+        alert('Please login again');
+        window.location.href = 'login.html';
+      }
+    }
+
+    document.getElementById('wishForm').onsubmit = async e => {
+      e.preventDefault();
+      const message = document.getElementById('wishMessage').value.trim();
+      if (!message) return;
+      const res = await fetch('/api/wishes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message }),
+      });
+      const data = await res.json();
+      document.getElementById('wishMsg').textContent = data.message;
+      document.getElementById('wishMessage').value = '';
+    };
+
+    document.getElementById('photoForm').onsubmit = async e => {
+      e.preventDefault();
+      const input = document.getElementById('photoInput');
+      if (input.files.length === 0) return;
+      const formData = new FormData();
+      formData.append('photo', input.files[0]);
+
+      const res = await fetch('/api/user-upload-photo', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json();
+      document.getElementById('photoMsg').textContent = data.message || 'Uploaded!';
+      input.value = '';
+      fetchUserData();
+    };
+
+    document.getElementById('logoutBtn').onclick = async () => {
+      await fetch('/api/logout', { method: 'POST' });
+      window.location.href = 'login.html';
+    };
+
+    fetchUserData();
+  </script>
+</body>
+</html>
