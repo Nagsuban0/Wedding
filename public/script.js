@@ -1,5 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // ===== Dark mode toggle =====
+  // ==============================
+  // 1️⃣ Dark mode toggle
+  // ==============================
   const darkModeToggle = document.getElementById("darkModeToggle");
   const body = document.body;
   darkModeToggle?.addEventListener("click", () => {
@@ -7,7 +9,9 @@ document.addEventListener("DOMContentLoaded", () => {
     darkModeToggle.textContent = body.classList.contains("dark-mode") ? "☀️" : "🌙";
   });
 
-  // ===== Hamburger menu toggle =====
+  // ==============================
+  // 2️⃣ Hamburger menu toggle
+  // ==============================
   const hamburger = document.querySelector(".hamburger");
   const navLinks = document.querySelector(".nav-links");
   if (hamburger && navLinks) {
@@ -28,7 +32,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ===== Highlight active nav link on scroll =====
+  // ==============================
+  // 3️⃣ Highlight active nav link on scroll
+  // ==============================
   const sections = document.querySelectorAll("section");
   window.addEventListener("scroll", () => {
     let current = "";
@@ -42,7 +48,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // ===== Hero Slider =====
+  // ==============================
+  // 4️⃣ Hero Slider
+  // ==============================
   const heroSlides = document.querySelectorAll(".slide");
   const dots = document.querySelectorAll(".dot");
   let currentHero = 0;
@@ -74,7 +82,9 @@ document.addEventListener("DOMContentLoaded", () => {
     showHeroSlide(currentHero);
   }
 
-  // ===== Lightbox =====
+  // ==============================
+  // 5️⃣ Lightbox
+  // ==============================
   const galleryImages = document.querySelectorAll(".gallery-item img, .gallery-slide img, .story-img img");
   const lightbox = document.getElementById("lightbox");
   const lightboxImg = document.querySelector(".lightbox-img");
@@ -110,7 +120,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.key === "ArrowLeft") showLightbox((currentIndex - 1 + galleryImages.length) % galleryImages.length);
   });
 
-  // ===== Gallery Slider (Mobile) =====
+  // ==============================
+  // 6️⃣ Gallery Slider (Mobile)
+  // ==============================
   const slides = document.querySelectorAll(".gallery-slide");
   const nextBtn = document.querySelector(".gallery-slider .next");
   const prevBtn = document.querySelector(".gallery-slider .prev");
@@ -142,7 +154,9 @@ document.addEventListener("DOMContentLoaded", () => {
   initSlider();
   window.addEventListener("resize", initSlider);
 
-  // ===== Story Section Scroll Animation =====
+  // ==============================
+  // 7️⃣ Story Section Scroll Animation
+  // ==============================
   const storyItems = document.querySelectorAll(".story-item");
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
@@ -151,7 +165,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }, { threshold: 0.3 });
   storyItems.forEach((item) => observer.observe(item));
 
-  // ===== Timeline & Diamonds Animation =====
+  // ==============================
+  // 8️⃣ Timeline & Diamonds Animation
+  // ==============================
   const timeline = document.querySelector(".vertical-timeline");
   const diamonds = document.querySelectorAll(".vertical-timeline .diamond");
   const sectionObserver = new IntersectionObserver((entries) => {
@@ -166,131 +182,75 @@ document.addEventListener("DOMContentLoaded", () => {
   }, { threshold: 0.4 });
   sections.forEach((section) => sectionObserver.observe(section));
 
-// ==============================
-// 1️⃣ Initialize Supabase
-// ==============================
-const supabaseUrl = 'https://eqkcemfxrctyurjiumyu.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVxa2NlbWZ4cmN0eXVyaml1bXl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzMzYwNjAsImV4cCI6MjA3NjkxMjA2MH0.1AyCYga_ph9VTO-N3NJHuLU8SyvFwhE5zrK7GCJo8MQ';
-const client = window.supabase.createClient(supabaseUrl, supabaseKey);
+  // ==============================
+  // 9️⃣ Initialize Supabase
+  // ==============================
+  const supabaseUrl = 'https://eqkcemfxrctyurjiumyu.supabase.co';
+  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVxa2NlbWZ4cmN0eXVyaml1bXl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzMzYwNjAsImV4cCI6MjA3NjkxMjA2MH0.1AyCYga_ph9VTO-N3NJHuLU8SyvFwhE5zrK7GCJo8MQ'; // replace with your anon key
+  const client = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-// ==============================
-// 2️⃣ DOM Elements
-// ==============================
-const openModalBtn = document.getElementById('openModalBtn');
-const wishModal = document.getElementById('wishModalForm');
-const closeModalBtns = document.querySelectorAll('.close-modal');
-const wishForm = document.getElementById('wishForm');
-const wishesList = document.getElementById('wishesList');
+  const openModalBtn = document.getElementById('openModalBtn');
+  const wishModal = document.getElementById('wishModalForm');
+  const closeModalBtns = document.querySelectorAll('.close-modal');
+  const wishForm = document.getElementById('wishForm');
+  const wishesList = document.getElementById('wishesList');
 
-// Modal detail view
-const wishDetailModal = document.getElementById('wishDetailModal');
-const modalPhoto = document.getElementById('modalPhoto');
-const modalName = document.getElementById('modalName');
-const modalEmail = document.getElementById('modalEmail');
-const modalMessage = document.getElementById('modalMessage');
+  const wishDetailModal = document.getElementById('wishDetailModal');
+  const modalPhoto = document.getElementById('modalPhoto');
+  const modalName = document.getElementById('modalName');
+  const modalEmail = document.getElementById('modalEmail');
+  const modalMessage = document.getElementById('modalMessage');
 
-// ==============================
-// 3️⃣ Modal Open/Close
-// ==============================
-openModalBtn.addEventListener('click', () => {
-  wishModal.style.display = 'block';
-});
+  openModalBtn?.addEventListener('click', () => wishModal.style.display='block');
+  closeModalBtns.forEach(btn => btn.addEventListener('click', ()=>btn.closest('.modal').style.display='none'));
+  window.addEventListener('click', e=>{if(e.target.classList.contains('modal')) e.target.style.display='none'});
 
-closeModalBtns.forEach(btn => {
-  btn.addEventListener('click', () => {
-    btn.closest('.modal').style.display = 'none';
-  });
-});
+  wishForm?.addEventListener('submit', async e=>{
+    e.preventDefault();
+    const fullName = document.getElementById('fullName').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const wishes = document.getElementById('wishes').value.trim();
+    const photoInput = document.getElementById('photo');
+    let photoUrl = null;
+    if(!fullName || !email || !wishes){alert("Please fill all fields!");return;}
 
-window.addEventListener('click', (e) => {
-  if (e.target.classList.contains('modal')) {
-    e.target.style.display = 'none';
-  }
-});
-
-// ==============================
-// 4️⃣ Submit Wish Form
-// ==============================
-wishForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-
-  const fullName = document.getElementById('fullName').value;
-  const email = document.getElementById('email').value;
-  const wishes = document.getElementById('wishes').value;
-  const photoInput = document.getElementById('photo');
-  let photoUrl = null;
-
-  // Upload photo if exists
-  if (photoInput.files.length > 0) {
-    const file = photoInput.files[0];
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${Date.now()}.${fileExt}`;
-    const { data, error } = await client.storage
-      .from('wishes-photos') // Make sure your bucket exists in Supabase Storage
-      .upload(fileName, file);
-
-    if (error) {
-      console.error('Photo upload error:', error);
-    } else {
+    if(photoInput.files.length>0){
+      const file = photoInput.files[0];
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${Date.now()}.${fileExt}`;
+      const {error: uploadError} = await client.storage.from('wishes-photos').upload(fileName,file);
+      if(uploadError){alert("Photo upload failed");return;}
       photoUrl = `${supabaseUrl}/storage/v1/object/public/wishes-photos/${fileName}`;
     }
-  }
 
-  // Insert wish into Supabase
-  const { data, error } = await client
-    .from('wishes')
-    .insert([{ fullName, email, wishes, photoUrl }]);
-
-  if (error) {
-    console.error('Insert error:', error);
-    alert('Something went wrong. Please try again.');
-  } else {
-    alert('Your wish has been sent! 🎉');
+    const {error: insertError} = await client.from('wishes').insert([{fullName,email,wishes,photoUrl}]);
+    if(insertError){alert("Something went wrong!");return;}
     wishForm.reset();
-    wishModal.style.display = 'none';
-    loadWishes(); // Refresh wishes list
-  }
-});
-
-// ==============================
-// 5️⃣ Load Wishes
-// ==============================
-async function loadWishes() {
-  const { data: wishes, error } = await client
-    .from('wishes')
-    .select('*')
-    .order('created_at', { ascending: false });
-
-  if (error) {
-    console.error('Fetch error:', error);
-    return;
-  }
-
-  wishesList.innerHTML = wishes
-    .map(wish => `
-      <div class="wish-item" data-id="${wish.id}">
-        ${wish.photoUrl ? `<img src="${wish.photoUrl}" alt="${wish.fullName}" class="wish-thumb">` : ''}
-        <h4>${wish.fullName}</h4>
-        <p>${wish.wishes}</p>
-      </div>
-    `).join('');
-
-  // Add click event to show detail modal
-  document.querySelectorAll('.wish-item').forEach(item => {
-    item.addEventListener('click', () => {
-      const wishId = item.dataset.id;
-      const wish = wishes.find(w => w.id == wishId);
-      modalPhoto.src = wish.photoUrl || '';
-      modalName.textContent = wish.fullName;
-      modalEmail.textContent = wish.email;
-      modalMessage.textContent = wish.wishes;
-      wishDetailModal.style.display = 'block';
-    });
+    wishModal.style.display='none';
+    loadWishes();
   });
-}
 
-// Initial load
-loadWishes();
+  async function loadWishes(){
+    const {data: wishes, error} = await client.from('wishes').select('*').order('created_at',{ascending:false});
+    if(error){console.error(error);return;}
+    if(!wishes || wishes.length===0){wishesList.innerHTML="<p>No wishes yet</p>"; return;}
+    wishesList.innerHTML = wishes.map(w=>`
+      <div class="wish-item" data-id="${w.id}">
+        ${w.photoUrl?`<img src="${w.photoUrl}" alt="${w.fullName}" class="wish-thumb">`:""}
+        <h4>${w.fullName}</h4>
+        <p>${w.wishes}</p>
+      </div>`).join('');
+    document.querySelectorAll('.wish-item').forEach(item=>{
+      item.addEventListener('click', ()=>{
+        const wish = wishes.find(w=>w.id==item.dataset.id);
+        modalPhoto.src = wish.photoUrl || "";
+        modalName.textContent = wish.fullName;
+        modalEmail.textContent = wish.email;
+        modalMessage.textContent = wish.wishes;
+        wishDetailModal.style.display='block';
+      });
+    });
+  }
 
-
-}); 
+  loadWishes();
+});
