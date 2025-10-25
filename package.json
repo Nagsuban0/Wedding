@@ -1,11 +1,12 @@
 {
   "name": "wedding",
   "version": "1.0.0",
-  "description": "Wedding website with backend API for wishes",
+  "type": "module",
   "scripts": {
-    "dev": "vercel dev"
+    "start": "node -r dotenv/config api/wishes.js"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.76.1"
+    "@supabase/supabase-js": "^2.0.0",
+    "dotenv": "^16.0.0"
   }
 }
