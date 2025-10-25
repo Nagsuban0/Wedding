@@ -167,10 +167,12 @@ document.addEventListener("DOMContentLoaded", () => {
   sections.forEach((section) => sectionObserver.observe(section));
 
   // ===== Supabase Setup =====
-  import { createClient } from '@supabase/supabase-js';
-  const supabaseUrl = 'https://eqkcemfxrctyurjiumyu.supabase.co';
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVxa2NlbWZ4cmN0eXVyaml1bXl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzMzYwNjAsImV4cCI6MjA3NjkxMjA2MH0.1AyCYga_ph9VTO-N3NJHuLU8SyvFwhE5zrK7GCJo8MQ';
-  const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseUrl = 'https://eqkcemfxrctyurjiumyu.supabase.co'
+const supabaseKey = process.env.SUPABASE_KEY
+const supabase = createClient(supabaseUrl, supabaseKey)
 
   // ===== Wish System =====
   const wishForm     = document.getElementById("wishForm");
