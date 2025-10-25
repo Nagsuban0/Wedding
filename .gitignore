@@ -1,7 +1,35 @@
-node_modules
-.env
-.vscode
-.DS_Store
+# Node modules
+node_modules/
 
-.vercel
-.server
+# Environment variables
+.env
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE/editor folders
+.vscode/
+.idea/
+
+# Vercel local config
+.vercel/
+
+# Build output
+dist/
+.build/
+.server/
+
+# Optional: coverage reports
+coverage/
+
+# Optional: temporary files
+tmp/
+temp/
