@@ -290,3 +290,5 @@ async function loadWishes() {
 
 // Initial load
 loadWishes();
+
+}); 
