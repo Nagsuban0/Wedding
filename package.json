@@ -2,30 +2,10 @@
   "name": "wedding",
   "version": "1.0.0",
   "description": "Wedding website with backend API for wishes",
-  "main": "api/server.js",
   "scripts": {
-    "start": "node api/server.js",
     "dev": "vercel dev"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
-    "@libsql/client": "^0.15.15",
-    "better-sqlite3": "^12.4.1",
-    "body-parser": "^2.2.0",
-    "cors": "^2.8.5",
-    "dotenv": "^17.2.3",
-    "express": "^5.1.0",
-    "mongoose": "^8.19.2"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Nagsuban0/Wedding.git"
-  },
-  "bugs": {
-    "url": "https://github.com/Nagsuban0/Wedding/issues"
-  },
-  "homepage": "https://github.com/Nagsuban0/Wedding#readme"
+    "@supabase/supabase-js": "^2.76.1"
+  }
 }

@@ -1,27 +1,19 @@
-import { promises as fs } from 'fs';
-import path from 'path';
+import { createClient } from '@supabase/supabase-js';
 
-const dataFile = path.join(process.cwd(), 'data', 'wishes.json');
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
 
-async function readWishes() {
-  try {
-    const data = await fs.readFile(dataFile, 'utf-8');
-    return JSON.parse(data);
-  } catch {
-    // If file doesn't exist or error, return empty array
-    return [];
-  }
-}
-
-async function writeWishes(wishes) {
-  await fs.mkdir(path.dirname(dataFile), { recursive: true });
-  await fs.writeFile(dataFile, JSON.stringify(wishes, null, 2));
-}
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {
-    const wishes = await readWishes();
-    return res.status(200).json(wishes);
+    // Fetch wishes ordered by newest first
+    const { data, error } = await supabase
+      .from('wishes')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) return res.status(500).json({ error: error.message });
+    return res.status(200).json(data);
   }
 
   if (req.method === 'POST') {
@@ -31,30 +23,20 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    const wishes = await readWishes();
+    const { data, error } = await supabase.from('wishes').insert([
+      {
+        fullName,
+        email,
+        message,
+        photo: photo || null,
+        likes: 0
+      }
+    ]).select();
 
-    const newWish = {
-      _id: Date.now().toString(),
-      fullName,
-      email,
-      message,
-      photo: photo || '',
-      likes: 0,
-      createdAt: new Date().toISOString(),
-    };
+    if (error) return res.status(500).json({ error: error.message });
 
-    wishes.unshift(newWish); // add newest on top
-
-    await writeWishes(wishes);
-
-    return res.status(201).json(newWish);
+    return res.status(201).json(data[0]);
   }
 
-  if (req.method === 'POST' && req.url.match(/^\/api\/wishes\/\d+\/like$/)) {
-    // For your like endpoint (you can implement this as a separate file or add logic here)
-    return res.status(501).json({ error: 'Like endpoint not implemented yet' });
-  }
-
-  res.setHeader('Allow', ['GET', 'POST']);
-  res.status(405).end(`Method ${req.method} Not Allowed`);
+  return res.status(405).json({ error: 'Method not allowed' });
 }

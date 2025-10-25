@@ -166,25 +166,26 @@ document.addEventListener("DOMContentLoaded", () => {
   }, { threshold: 0.4 });
   sections.forEach((section) => sectionObserver.observe(section));
 
+  // ===== Supabase Setup =====
+  const supabaseUrl = 'https://eqkcemfxrctyurjiumyu.supabase.co';
+  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVxa2NlbWZ4cmN0eXVyaml1bXl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzMzYwNjAsImV4cCI6MjA3NjkxMjA2MH0.1AyCYga_ph9VTO-N3NJHuLU8SyvFwhE5zrK7GCJo8MQ';
+  const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
   // ===== Wish System =====
   const wishForm     = document.getElementById("wishForm");
   const wishesList   = document.getElementById("wishesList");
   const openWishBtn  = document.getElementById("openModalBtn");
   const formModal    = document.getElementById("wishModalForm");
-  const detailModal  = document.getElementById("wishDetailModal");
 
   const closeFormModal   = formModal?.querySelector(".close-modal");
-  const closeDetailModal = detailModal?.querySelector(".close-modal");
 
   openWishBtn?.addEventListener("click", () => formModal.style.display = "block");
   closeFormModal?.addEventListener("click", () => formModal.style.display = "none");
-  closeDetailModal?.addEventListener("click", () => detailModal.style.display = "none");
   window.addEventListener("click", (e) => {
     if (e.target === formModal) formModal.style.display = "none";
-    if (e.target === detailModal) detailModal.style.display = "none";
   });
 
-  // ===== Floating Heart Animation =====
+  // Floating Heart
   function createFloatingHeart(button) {
     const heart = document.createElement("span");
     heart.className = "floating-heart";
@@ -196,22 +197,25 @@ document.addEventListener("DOMContentLoaded", () => {
     setTimeout(() => heart.remove(), 1000);
   }
 
-  // ===== Load Wishes =====
+  // ===== Load Wishes from Supabase =====
   async function loadWishes() {
     if (!wishesList) return;
     wishesList.innerHTML = "<p>Loading wishes…</p>";
     try {
-      const res = await fetch("/api/wishes");
-      if (!res.ok) throw new Error(`Server error: ${res.status}`);
-      const wishes = await res.json();
+      const { data, error } = await supabase
+        .from('wishes')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-      if (!Array.isArray(wishes) || wishes.length === 0) {
+      if (error) throw error;
+
+      if (!data || data.length === 0) {
         wishesList.innerHTML = "<p>No wishes yet. Be the first to send one!</p>";
         return;
       }
 
       wishesList.innerHTML = "";
-      wishes.forEach((wish) => {
+      data.forEach((wish) => {
         const div = document.createElement("div");
         div.classList.add("wish-item");
 
@@ -226,8 +230,7 @@ document.addEventListener("DOMContentLoaded", () => {
         div.innerHTML = `
           ${photoHTML}
           <div class="wish-content">
-            <h4>${wish.fullName}</h4>
-            <p><strong>Email:</strong> ${wish.email}</p>
+            <h4>${wish.full_name}</h4>
             <p>${shortMessage}</p>
           </div>
           <div class="wish-footer">
@@ -237,21 +240,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
         wishesList.appendChild(div);
 
-        // Like button handler
         const likeBtn = div.querySelector(".like-btn");
         likeBtn?.addEventListener("click", async () => {
           const currentLikes = parseInt(likeBtn.querySelector("span").textContent) || 0;
           likeBtn.querySelector("span").textContent = currentLikes + 1;
           createFloatingHeart(likeBtn);
 
-          try {
-            await fetch(`/api/wishes/${wish._id}/like`, { method: "POST" });
-          } catch (err) {
-            console.error("Failed to update like:", err);
-          }
+          await supabase
+            .from('wishes')
+            .update({ likes: currentLikes + 1 })
+            .eq('id', wish.id);
         });
       });
-
     } catch (err) {
       console.error(err);
       wishesList.innerHTML = "<p>Failed to load wishes.</p>";
@@ -265,35 +265,32 @@ document.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
 
     const formData = new FormData(wishForm);
-    const data = {
-      fullName: formData.get("fullName"),
-      email: formData.get("email"),
-      message: formData.get("message"),
-      photo: ""
-    };
+    const fullName = formData.get("fullName");
+    const email    = formData.get("email");
+    const message  = formData.get("message");
+    const file     = formData.get("photo");
 
-    const file = formData.get("photo");
+    let photoUrl = null;
+
     if (file && file.size > 0) {
-      data.photo = await new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.readAsDataURL(file);
-      });
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}.${fileExt}`;
+      const { error: uploadError } = await supabase.storage
+        .from('wishes-photos')
+        .upload(fileName, file);
+
+      if (!uploadError) {
+        const { publicUrl } = supabase.storage.from('wishes-photos').getPublicUrl(fileName);
+        photoUrl = publicUrl;
+      }
     }
 
     try {
-      const res = await fetch("/api/wishes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-      });
-
-      if (!res.ok) throw new Error("Failed to submit wish");
-
-      alert("Your wish has been submitted! 🎉");
+      await supabase.from('wishes').insert([{ full_name: fullName, email, message, photo: photoUrl, likes: 0 }]);
       wishForm.reset();
       formModal.style.display = "none";
       loadWishes();
+      alert("Your wish has been submitted! 🎉");
     } catch (err) {
       console.error(err);
       alert("Failed to submit your wish. Please try again.");
