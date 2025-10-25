@@ -12,6 +12,8 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@libsql/client": "^0.15.15",
+    "better-sqlite3": "^12.4.1",
     "body-parser": "^2.2.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
