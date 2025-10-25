@@ -166,137 +166,195 @@ document.addEventListener("DOMContentLoaded", () => {
   }, { threshold: 0.4 });
   sections.forEach((section) => sectionObserver.observe(section));
 
-  // ===== Supabase Setup =====
-
-const supabaseUrl = 'https://eqkcemfxrctyurjiumyu.supabase.co'
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVxa2NlbWZ4cmN0eXVyaml1bXl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzMzYwNjAsImV4cCI6MjA3NjkxMjA2MH0.1AyCYga_ph9VTO-N3NJHuLU8SyvFwhE5zrK7GCJo8MQ"
-
-// 2️⃣ Initialize Supabase client correctly (v2 syntax)
+ // ==============================
+// 1️⃣ Initialize Supabase
+// ==============================
+const supabaseUrl = 'https://eqkcemfxrctyurjiumyu.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVxa2NlbWZ4cmN0eXVyaml1bXl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzMzYwNjAsImV4cCI6MjA3NjkxMjA2MH0.1AyCYga_ph9VTO-N3NJHuLU8SyvFwhE5zrK7GCJo8MQ'; // Replace with your actual anon key
 const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-  // ===== Wish System =====
-  const wishForm     = document.getElementById("wishForm");
-  const wishesList   = document.getElementById("wishesList");
-  const openWishBtn  = document.getElementById("openModalBtn");
-  const formModal    = document.getElementById("wishModalForm");
+// ==============================
+// 2️⃣ DOM Elements
+// ==============================
+const openModalBtn = document.getElementById('openModalBtn');
+const wishModal = document.getElementById('wishModalForm');
+const closeModalBtns = document.querySelectorAll('.close-modal');
+const wishForm = document.getElementById('wishForm');
+const wishesList = document.getElementById('wishesList');
 
-  const closeFormModal   = formModal?.querySelector(".close-modal");
+// Modal detail view
+const wishDetailModal = document.getElementById('wishDetailModal');
+const modalPhoto = document.getElementById('modalPhoto');
+const modalName = document.getElementById('modalName');
+const modalEmail = document.getElementById('modalEmail');
+const modalMessage = document.getElementById('modalMessage');
 
-  openWishBtn?.addEventListener("click", () => formModal.style.display = "block");
-  closeFormModal?.addEventListener("click", () => formModal.style.display = "none");
-  window.addEventListener("click", (e) => {
-    if (e.target === formModal) formModal.style.display = "none";
-  });
+// ==============================
+// 3️⃣ Modal Open/Close
+// ==============================
+openModalBtn.addEventListener('click', () => {
+  wishModal.style.display = 'block';
+});
 
-  // Floating Heart
-  function createFloatingHeart(button) {
-    const heart = document.createElement("span");
-    heart.className = "floating-heart";
-    heart.textContent = "❤️";
-    const rect = button.getBoundingClientRect();
-    heart.style.left = `${rect.left + rect.width/2}px`;
-    heart.style.top  = `${rect.top - 10}px`;
-    document.body.appendChild(heart);
-    setTimeout(() => heart.remove(), 1000);
-  }
-
-  // ===== Load Wishes from Supabase =====
-  async function loadWishes() {
-    if (!wishesList) return;
-    wishesList.innerHTML = "<p>Loading wishes…</p>";
-    try {
-      const { data, error } = await supabase
-        .from('wishes')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      if (!data || data.length === 0) {
-        wishesList.innerHTML = "<p>No wishes yet. Be the first to send one!</p>";
-        return;
-      }
-
-      wishesList.innerHTML = "";
-      data.forEach((wish) => {
-        const div = document.createElement("div");
-        div.classList.add("wish-item");
-
-        const photoHTML = wish.photo
-          ? `<img src="${wish.photo}" class="wish-photo" alt="Wish photo">`
-          : "";
-
-        const shortMessage = wish.message.length > 60
-          ? wish.message.substring(0, 60) + "..."
-          : wish.message;
-
-        div.innerHTML = `
-          ${photoHTML}
-          <div class="wish-content">
-            <h4>${wish.full_name}</h4>
-            <p>${shortMessage}</p>
-          </div>
-          <div class="wish-footer">
-            <button class="like-btn">❤️ <span>${wish.likes || 0}</span></button>
-          </div>
-        `;
-
-        wishesList.appendChild(div);
-
-        const likeBtn = div.querySelector(".like-btn");
-        likeBtn?.addEventListener("click", async () => {
-          const currentLikes = parseInt(likeBtn.querySelector("span").textContent) || 0;
-          likeBtn.querySelector("span").textContent = currentLikes + 1;
-          createFloatingHeart(likeBtn);
-
-          await supabase
-            .from('wishes')
-            .update({ likes: currentLikes + 1 })
-            .eq('id', wish.id);
-        });
-      });
-    } catch (err) {
-      console.error(err);
-      wishesList.innerHTML = "<p>Failed to load wishes.</p>";
-    }
-  }
-
-  loadWishes();
-
-  // ===== Submit Wish =====
-  wishForm?.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const formData = new FormData(wishForm);
-    const fullName = formData.get("fullName");
-    const email    = formData.get("email");
-    const message  = formData.get("message");
-    const file     = formData.get("photo");
-
-    let photoUrl = null;
-
-    if (file && file.size > 0) {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}.${fileExt}`;
-      const { error: uploadError } = await supabase.storage
-        .from('wishes-photos')
-        .upload(fileName, file);
-
-      if (!uploadError) {
-        const { publicUrl } = supabase.storage.from('wishes-photos').getPublicUrl(fileName);
-        photoUrl = publicUrl;
-      }
-    }
-
-    try {
-      await supabase.from('wishes').insert([{ full_name: fullName, email, message, photo: photoUrl, likes: 0 }]);
-      wishForm.reset();
-      formModal.style.display = "none";
-      loadWishes();
-      alert("Your wish has been submitted! 🎉");
-    } catch (err) {
-      console.error(err);
-      alert("Failed to submit your wish. Please try again.");
-    }
+closeModalBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    btn.closest('.modal').style.display = 'none';
   });
 });
+
+window.addEventListener('click', (e) => {
+  if (e.target.classList.contains('modal')) {
+    e.target.style.display = 'none';
+  }
+});
+
+// ==============================
+// 4️⃣ Submit Wish Form
+// ==============================
+wishForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const fullName = document.getElementById('fullName').value;
+  const email = document.getElementById('email').value;
+  const wishes = document.getElementById('wishes').value;
+  const photoInput = document.getElementById('photo');
+  let photoUrl = null;
+
+  // Upload photo if exists
+  if (photoInput.files.length > 0) {
+    const file = photoInput.files[0];
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Date.now()}.${fileExt}`;
+    const { data, error } = await supabase.storage
+      .from('wishes-photos') // Make sure your bucket exists
+      .upload(fileName, file);
+
+    if (error) {
+      console.error('Photo upload error:', error);
+    } else {
+      photoUrl = `${supabaseUrl}/storage/v1/object/public/wishes-photos/${fileName}`;
+    }
+  }
+
+  // Insert wish into Supabase
+  const { data, error } = await supabase
+    .from('wishes')
+    .insert([{ fullName, email, wishes, photoUrl }]);
+
+  if (error) {
+    console.error('Insert error:', error);
+  } else {
+    alert('Your wish has been sent! 🎉');
+    wishForm.reset();
+    wishModal.style.display = 'none';
+    loadWishes(); // Refresh wishes list
+  }
+});
+
+// ==============================
+// 5️⃣ Load Wishes
+// ==============================
+async function loadWishes() {
+  const { data: wishes, error } = await supabase
+    .from('wishes')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  wishesList.innerHTML = wishes
+    .map(wish => `
+      <div class="wish-item" data-id="${wish.id}">
+        ${wish.photoUrl ? `<img src="${wish.photoUrl}" alt="${wish.fullName}" class="wish-thumb">` : ''}
+        <h4>${wish.fullName}</h4>
+        <p>${wish.wishes}</p>
+      </div>
+    `).join('');
+
+  // Add click event to show detail modal
+  document.querySelectorAll('.wish-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const wishId = item.dataset.id;
+      const wish = wishes.find(w => w.id == wishId);
+      modalPhoto.src = wish.photoUrl || '';
+      modalName.textContent = wish.fullName;
+      modalEmail.textContent = wish.email;
+      modalMessage.textContent = wish.wishes;
+      wishDetailModal.style.display = 'block';
+    });
+  });
+}
+
+// Initial load
+loadWishes();
+
+// ==============================
+// 6️⃣ Dark Mode Toggle
+// ==============================
+const darkModeToggle = document.getElementById('darkModeToggle');
+darkModeToggle.addEventListener('click', () => {
+  document.body.classList.toggle('dark-mode');
+  darkModeToggle.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+});
+
+// ==============================
+// 7️⃣ Hamburger Menu Toggle
+// ==============================
+const hamburger = document.querySelector('.hamburger');
+const navLinks = document.querySelector('.nav-links');
+
+hamburger.addEventListener('click', () => {
+  navLinks.classList.toggle('open');
+  hamburger.classList.toggle('active');
+});
+
+// ==============================
+// 8️⃣ Hero Slider
+// ==============================
+let heroIndex = 0;
+const slides = document.querySelectorAll('.slider .slide');
+const dots = document.querySelectorAll('.slider .dot');
+
+function showSlide(index) {
+  slides.forEach(s => s.classList.remove('active'));
+  dots.forEach(d => d.classList.remove('active'));
+  slides[index].classList.add('active');
+  dots[index].classList.add('active');
+}
+
+dots.forEach(dot => {
+  dot.addEventListener('click', () => {
+    heroIndex = parseInt(dot.dataset.slide);
+    showSlide(heroIndex);
+  });
+});
+
+setInterval(() => {
+  heroIndex = (heroIndex + 1) % slides.length;
+  showSlide(heroIndex);
+}, 5000);
+
+// ==============================
+// 9️⃣ Gallery Slider
+// ==============================
+let galleryIndex = 0;
+const gallerySlides = document.querySelectorAll('.gallery-slide');
+document.querySelector('.gallery-controls .prev').addEventListener('click', () => {
+  galleryIndex = (galleryIndex - 1 + gallerySlides.length) % gallerySlides.length;
+  updateGallery();
+});
+document.querySelector('.gallery-controls .next').addEventListener('click', () => {
+  galleryIndex = (galleryIndex + 1) % gallerySlides.length;
+  updateGallery();
+});
+
+function updateGallery() {
+  gallerySlides.forEach(slide => slide.style.display = 'none');
+  gallerySlides[galleryIndex].style.display = 'block';
+}
+
+// Initialize gallery display
+updateGallery();
