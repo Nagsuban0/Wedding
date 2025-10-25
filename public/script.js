@@ -166,12 +166,12 @@ document.addEventListener("DOMContentLoaded", () => {
   }, { threshold: 0.4 });
   sections.forEach((section) => sectionObserver.observe(section));
 
- // ==============================
+// ==============================
 // 1️⃣ Initialize Supabase
 // ==============================
 const supabaseUrl = 'https://eqkcemfxrctyurjiumyu.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVxa2NlbWZ4cmN0eXVyaml1bXl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzMzYwNjAsImV4cCI6MjA3NjkxMjA2MH0.1AyCYga_ph9VTO-N3NJHuLU8SyvFwhE5zrK7GCJo8MQ'; // Replace with your actual anon key
-const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVxa2NlbWZ4cmN0eXVyaml1bXl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzMzYwNjAsImV4cCI6MjA3NjkxMjA2MH0.1AyCYga_ph9VTO-N3NJHuLU8SyvFwhE5zrK7GCJo8MQ';
+const client = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 // ==============================
 // 2️⃣ DOM Elements
@@ -225,8 +225,8 @@ wishForm.addEventListener('submit', async (e) => {
     const file = photoInput.files[0];
     const fileExt = file.name.split('.').pop();
     const fileName = `${Date.now()}.${fileExt}`;
-    const { data, error } = await supabase.storage
-      .from('wishes-photos') // Make sure your bucket exists
+    const { data, error } = await client.storage
+      .from('wishes-photos') // Make sure your bucket exists in Supabase Storage
       .upload(fileName, file);
 
     if (error) {
@@ -237,12 +237,13 @@ wishForm.addEventListener('submit', async (e) => {
   }
 
   // Insert wish into Supabase
-  const { data, error } = await supabase
+  const { data, error } = await client
     .from('wishes')
     .insert([{ fullName, email, wishes, photoUrl }]);
 
   if (error) {
     console.error('Insert error:', error);
+    alert('Something went wrong. Please try again.');
   } else {
     alert('Your wish has been sent! 🎉');
     wishForm.reset();
@@ -255,13 +256,13 @@ wishForm.addEventListener('submit', async (e) => {
 // 5️⃣ Load Wishes
 // ==============================
 async function loadWishes() {
-  const { data: wishes, error } = await supabase
+  const { data: wishes, error } = await client
     .from('wishes')
     .select('*')
     .order('created_at', { ascending: false });
 
   if (error) {
-    console.error(error);
+    console.error('Fetch error:', error);
     return;
   }
 
@@ -290,5 +291,6 @@ async function loadWishes() {
 
 // Initial load
 loadWishes();
+
 
 }); 
